@@ -2,11 +2,9 @@ import scenario
 import sys
 import random
 from datetime import datetime
-
-#***********************************
-#add all your scenario function here
-#***********************************
-scenario_list = [scenario.scenario_contact]
+from selenium.common.exceptions import NoSuchElementException
+from scenario import scenario_list
+from selenium import webdriver
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
@@ -24,10 +22,14 @@ if __name__ == '__main__':
     print('Bot mode: ' + mode)
     starting_time = str(datetime.now())
     
+    driver = webdriver.Chrome('./chromedrivers/chromedriver')
+
     if mode == 'random' or mode == 'r':
         for i in range(int(sys.argv[2])):
-            random.choice(scenario_list)()
-    
+            try:
+                random.choice(scenario_list)(driver)
+            except NoSuchElementException:
+                continue
     if mode == 'custom' or mode == 'c':
         for i in range(len(sys.argv)):
             if i == 0 or i == 1:
@@ -38,7 +40,9 @@ if __name__ == '__main__':
                     print('scenario value out of bound, skipped')
                     continue
                 else:
-                    scenario_list[index]()
-
+                    try:
+                        scenario_list[index](driver)
+                    except NoSuchElementException:
+                        continue
     print('Starting time: ' + starting_time)
     print('Ending time: ' + str(datetime.now()))
