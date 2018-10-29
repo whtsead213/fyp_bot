@@ -5,12 +5,13 @@ Please define function for any scenario in scerario.py following same pattern as
 
 How to use:
 eg. 
-    python bot.py random 5
-        randomly pick a scenario for 5 times\n
-        
-    or\n
+
+python bot.py random 5
+randomly pick a scenario for 5 times        
     
-    python bot.py custom 1 2 3 
-        each argument is the index of the scenario
-        
+or
+    
+python bot.py custom 1 2 3
+each argument is the index of the scenario
+       
 You can also change the sleep duration and verbose in config.py
