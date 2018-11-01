@@ -35,6 +35,8 @@ def random_return_home(driver, prob=config.config['return_home_probability'], ve
         random_sleep()
 
 def comment_product(driver, prob=config.config["comment_product_probability"], verbose=config.config['verbose']):
+    # if too fast, the product_review element cannot be found
+    random_sleep(2, 3)
     #generate comment, usually good
     random_prob = random.random() 
     if random_prob <= prob:
@@ -119,7 +121,35 @@ def scenario_contact(driver, verbose=config.config['verbose']):
     driver.find_element_by_xpath('//*[@id="submitButton"]').click()
 
 
+def scenario_login(driver, verbose=config.config['verbose']):
+    driver.get(config.config['url'])
+    random_sleep()
+
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+    random_sleep(1, 2)
+
+    # Choose a user credential randomly
+    r = random.randint(0, len(config.users) - 1)
+    email = config.users[r][0]
+    passwd = config.users[r][1]
+
+    driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
+    driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
+    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+    random_sleep(2, 3)
+   
+
+def scenario_logout(driver, verbose=config.config['verbose']):
+    driver.get(config.config['url'])
+    random_sleep(2, 3)
+
+    try:
+        driver.find_element_by_xpath('/html/body/nav/div/ul/li[2]').click()
+    except:
+        pass
+    random_sleep(2, 3)
+
 #***********************************
 #add all your scenario function here
 #***********************************
-scenario_list = [scenario_click_home_product,scenario_contact]
+scenario_list = [scenario_click_home_product,scenario_contact, scenario_login, scenario_logout]
