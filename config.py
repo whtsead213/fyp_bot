@@ -11,4 +11,9 @@ config = {
 
 #add more comment when you are free
 good_comments = ['amazing!','One of my favorites!','I like this!','Thanks', 'amazing!', 'Interesting!', 'the products are good!!','Thank you','admin is nice','Not bad.','Good','Nice','I like this website']
-bad_comments = ['Garbage!','POOR SERVICE!!!!!','The ui is ugly','this is bad']
+
+bad_comments = ['I hate this', 'Garbage!','POOR SERVICE!!!!!','The ui is ugly','this is bad']
+
+users = [
+        ['abc@abc.com', 'abc@abc'],
+        ]
