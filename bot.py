@@ -26,6 +26,15 @@ if __name__ == '__main__':
     driver = webdriver.Chrome('./chromedrivers/chromedriver')
     driver.get(config.config['url'])
 
+    try:
+        #dismiss the cookie message since it make the close button untouchable
+        driver.find_element_by_xpath('/html/body/div[1]/div/a').click()
+        print('dismissed cookie')
+    except NoSuchElementException:
+        print('can not find cookie message')
+        pass
+
+
     if mode == 'random' or mode == 'r':
         for i in range(int(sys.argv[2])):
             try:
