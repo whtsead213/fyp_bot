@@ -4,9 +4,12 @@ config = {
     "sleep_min": 2,
     "sleep_max": 5,
     "return_home_probability": 0.05,
-    "comment_product_probability": 0.4,
+    "comment_product_probability": 1,
     "home_product_clicks_max": 3,
-    "home_product_clicks_min": 1
+    "home_product_clicks_min": 1,
+    "add_product_to_cart_max": 10,
+    "add_product_to_cart_min": 1,
+    "add_product_to_cart_prob": 1
 }
 
 #add more comment when you are free

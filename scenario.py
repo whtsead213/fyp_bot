@@ -3,7 +3,7 @@ import config
 import random
 from time import sleep
 import json
-
+from selenium.common.exceptions import NoSuchElementException
 
 is_logged_in = False
 accounts = None
@@ -13,7 +13,6 @@ with open('accounts.json') as f:
     for ac in accounts:
         #print(type(ac)) #dict
         print(ac)
-
 
 def random_sleep(min=config.config['sleep_min'],max=config.config['sleep_max'],verbose=config.config['verbose']):
     assert(min<=max)
@@ -57,25 +56,65 @@ def comment_product(driver, prob=config.config["comment_product_probability"], v
         random_sleep(min=10, max=20) #make it longer
        
         #send the comment
-        driver.find_element_by_xpath('//*[@id="submitButton"]/span').click() 
+        driver.find_element_by_xpath('//*[@id="submitButton"]').click() 
         random_sleep()
     
     #close the product window
-    driver.find_element_by_xpath('/html/body/div[1]/div/div/section/footer/button/span').click() 
+    print('click close')
+    try:
+        #dismiss the cookie message since it make the close button untouchable
+        driver.find_element_by_xpath('/html/body/div[1]/div/a').click()
+        print('dismissed cookie')
+    except NoSuchElementException:
+        print('can not find cookie message')
+        pass
+    driver.find_element_by_xpath('/html/body/div[1]/div/div/section/footer/button').click() 
 
-def scenario_click_home_product(driver, verbose=config.config['verbose']):   
-    driver.get(config.config['url'])
+def add_product_to_cart(driver, product_id=None, verbose=config.config['verbose']):
+    min_add = config.config["add_product_to_cart_min"]
+    max_add = config.config["add_product_to_cart_max"]
+    r = random.randint(min_add,max_add)
+
+    for i in range(r):
+    #i dont know how to find all product in a page so i simply select the top one, please improve it if u know
+        try:
+            random_sleep(1,2)
+            if product_id == None:
+                driver.find_element_by_xpath('/html/body/main/div/section/table/tbody/tr[3]/td[5]/div/a[2]').click()
+            else :
+                print('this should appear')
+                product = '/html/body/main/div/section/table/tbody/tr[' + str(product_id) +']/td[5]/div/a[2]'
+                print(product)
+                print(product == '/html/body/main/div/section/table/tbody/tr[2]/td[5]/div/a[2]')
+                driver.find_element_by_xpath(product).click()
+        except NoSuchElementException:
+            pass
+
+def scenario_click_product(driver, page='home', verbose=config.config['verbose']):   
+    #driver.get(config.config['url'])
     max_clicks = config.config["home_product_clicks_max"]
     min_clicks = config.config["home_product_clicks_min"]
     clicks = random.randint(min_clicks,max_clicks)
-    print(clicks)
+    if verbose:
+        print(clicks)
     for i in range(clicks):
-        random_sleep()
-        product_id = random.randint(2,29) 
-        product = "/html/body/main/div/section/table/tbody/tr["+str(product_id)+"]/td[5]/div/a[1]"
-        driver.find_element_by_xpath(product).click()
-        comment_product(driver)
-    
+        try:
+            random_sleep(2,3)
+            if page == 'home':
+                product_id = random.randint(2,29)
+            elif page == 'search':
+                 product_id = random.randint(2,2)
+            product = "/html/body/main/div/section/table/tbody/tr["+str(product_id)+"]/td[5]/div/a[1]"
+            driver.find_element_by_xpath(product).click()
+            comment_product(driver)
+            if is_logged_in:
+                print('debug')
+                random_prob = random.random()
+                if random_prob <= config.config["add_product_to_cart_prob"]:
+                    add_product_to_cart(driver, product_id=product_id)
+        except NoSuchElementException:
+            pass
+
 
 def scenario_contact(driver, verbose=config.config['verbose']):
     '''
@@ -152,10 +191,11 @@ def scenario_login(driver, verbose=config.config['verbose']):
         driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
         driver.find_element_by_xpath('//*[@id="loginButton"]').click()
         is_logged_in = True
+        if verbose:
+            print(email + 'is logged in')
         random_sleep(2, 3)
    
 def scenario_logout(driver, verbose=config.config['verbose']):
-    print('testsetestsetset')
     random_sleep(2, 3)
 
     global is_logged_in
@@ -164,6 +204,9 @@ def scenario_logout(driver, verbose=config.config['verbose']):
         try:
             driver.find_element_by_xpath('/html/body/nav/div/ul/li[2]/a/span').click()
             is_logged_in = False
+
+            if verbose:
+                print('logged out')
         except:
             pass
         random_sleep(2, 3)
@@ -174,12 +217,18 @@ def scenario_search(driver, verbose=config.config['verbose']):
     random_sleep()
 
     r = random.randint(0, len(config.search_keyword) - 1)
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').clear
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(config.search_keyword[r])
     random_sleep()
-
+    driver.find_element_by_xpath('//*[@id="searchButton"]').click()
+        # random_prob = random.random()
+        # if random_prob <= config.config["add_product_to_cart_prob"]:
+        #     add_product_to_cart(driver, product_id=None)
+    scenario_click_product(driver,page='search')
     
 
 #***********************************
 #add all your scenario function here
 #***********************************
-scenario_list = [scenario_click_home_product, scenario_contact, scenario_login, scenario_logout]
+#scenario_list = [scenario_click_product, scenario_contact, scenario_login, scenario_logout]
+scenario_list = [scenario_login,scenario_search,scenario_logout]
