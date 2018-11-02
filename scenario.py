@@ -2,6 +2,18 @@ import config
 # from selenium import webdriver
 import random
 from time import sleep
+import json
+
+
+is_logged_in = False
+accounts = None
+
+with open('accounts.json') as f:
+    accounts = json.load(f)
+    for ac in accounts:
+        #print(type(ac)) #dict
+        print(ac)
+
 
 def random_sleep(min=config.config['sleep_min'],max=config.config['sleep_max'],verbose=config.config['verbose']):
     assert(min<=max)
@@ -77,7 +89,7 @@ def scenario_contact(driver, verbose=config.config['verbose']):
     #driver = webdriver.Chrome('./chromedrivers/chromedriver')
 
     #go to main page
-    driver.get(config.config['url']) # You can change this to other url if you don't want to access from main page
+    #driver.get(config.config['url']) # You can change this to other url if you don't want to access from main page
     random_sleep()
 
     #click contact us 
@@ -122,34 +134,52 @@ def scenario_contact(driver, verbose=config.config['verbose']):
 
 
 def scenario_login(driver, verbose=config.config['verbose']):
-    driver.get(config.config['url'])
+    random_sleep()
+    global is_logged_in
+
+    if is_logged_in:
+        return
+    else:
+        driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+        random_sleep(1, 2)
+
+        # Choose a user credential randomly
+        r = random.randint(0, len(accounts) - 1)
+        email = accounts[r]['id']
+        passwd = accounts[r]['pw']
+
+        driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
+        driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
+        driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+        is_logged_in = True
+        random_sleep(2, 3)
+   
+def scenario_logout(driver, verbose=config.config['verbose']):
+    print('testsetestsetset')
+    random_sleep(2, 3)
+
+    global is_logged_in
+
+    if is_logged_in:
+        try:
+            driver.find_element_by_xpath('/html/body/nav/div/ul/li[2]/a/span').click()
+            is_logged_in = False
+        except:
+            pass
+        random_sleep(2, 3)
+    else:
+         return
+
+def scenario_search(driver, verbose=config.config['verbose']):
     random_sleep()
 
-    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
-    random_sleep(1, 2)
+    r = random.randint(0, len(config.search_keyword) - 1)
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(config.search_keyword[r])
+    random_sleep()
 
-    # Choose a user credential randomly
-    r = random.randint(0, len(config.users) - 1)
-    email = config.users[r][0]
-    passwd = config.users[r][1]
-
-    driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
-    driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
-    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
-    random_sleep(2, 3)
-   
-
-def scenario_logout(driver, verbose=config.config['verbose']):
-    driver.get(config.config['url'])
-    random_sleep(2, 3)
-
-    try:
-        driver.find_element_by_xpath('/html/body/nav/div/ul/li[2]').click()
-    except:
-        pass
-    random_sleep(2, 3)
+    
 
 #***********************************
 #add all your scenario function here
 #***********************************
-scenario_list = [scenario_click_home_product,scenario_contact, scenario_login, scenario_logout]
+scenario_list = [scenario_click_home_product, scenario_contact, scenario_login, scenario_logout]

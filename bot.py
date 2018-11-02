@@ -5,6 +5,7 @@ from datetime import datetime
 from selenium.common.exceptions import NoSuchElementException
 from scenario import scenario_list
 from selenium import webdriver
+import config
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
@@ -23,6 +24,7 @@ if __name__ == '__main__':
     starting_time = str(datetime.now())
     
     driver = webdriver.Chrome('./chromedrivers/chromedriver')
+    driver.get(config.config['url'])
 
     if mode == 'random' or mode == 'r':
         for i in range(int(sys.argv[2])):

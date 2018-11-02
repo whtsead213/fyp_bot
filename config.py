@@ -14,6 +14,4 @@ good_comments = ['amazing!','One of my favorites!','I like this!','Thanks', 'ama
 
 bad_comments = ['I hate this', 'Garbage!','POOR SERVICE!!!!!','The ui is ugly','this is bad']
 
-users = [
-        ['abc@abc.com', 'abc@abc'],
-        ]
+search_keyword = ['hoodie', 'apple']
