@@ -272,6 +272,15 @@ def scenario_about_us(driver, verbose=config.config['verbose']):
     # do this if you are free and bored
     pass
 
+def register(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+    # please finish this at least
+    # probably u need to register manually using raw_input() and append new user data to accounts and output to json
+    # also see if it will automatically login after successfully registered. So u need to change the global variable.
+    pass
+
 #***********************************
 #add all your scenario function here
 #***********************************
