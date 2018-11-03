@@ -281,7 +281,8 @@ def scenario_register(driver, verbose=config.config['verbose']):
     # probably u need to register manually using raw_input() and append new user data to accounts and output to json
     # also see if it will automatically login after successfully registered. So u need to change the global variable.
     # (No, it won't)
-    print ("ENTER REGISTER")
+    if verbose:
+        print ("ENTER REGISTER")
     # 1. if it is login, logout first
     if is_logged_in:
         scenario_logout(driver=driver, verbose=verbose)
