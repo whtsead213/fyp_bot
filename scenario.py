@@ -273,7 +273,7 @@ def scenario_about_us(driver, verbose=config.config['verbose']):
     # do this if you are free and bored
     pass
 
-def register(driver, verbose=config.config['verbose']):
+def scenario_register(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
     global accounts
@@ -330,4 +330,4 @@ def register(driver, verbose=config.config['verbose']):
 #add all your scenario function here
 #***********************************
 
-scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, register]
+scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_register]
