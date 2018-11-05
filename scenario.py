@@ -289,7 +289,24 @@ def scenario_change_password(driver, verbose=config.config['verbose']):
 
 def scenario_about_us(driver, verbose=config.config['verbose']):
     # do this if you are free and bored
-    pass
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[12]').click()
+    random_sleep(1, 2)
+
+    row_time = random.randint(0, 30)
+
+    #if verbose:
+    if True:
+        print ("row time = " + str(row_time))
+
+    for i in range(0, row_time):
+        random_left_right = random.randint(0, 1)
+        if random_left_right == 0:
+            driver.find_element_by_xpath('/html/body/main/div/div/section[1]/div/div/a[1]').click()
+        else:
+            driver.find_element_by_xpath('/html/body/main/div/div/section[1]/div/div/a[2]').click()
+        random_sleep(1, 2)
+    
+    return
 
 
 def scenario_register(driver, verbose=config.config['verbose']):
@@ -349,4 +366,4 @@ def scenario_register(driver, verbose=config.config['verbose']):
 #add all your scenario function here
 #***********************************
 
-scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_register]
+scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_about_us, scenario_register]
