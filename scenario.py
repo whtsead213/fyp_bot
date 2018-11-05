@@ -283,19 +283,45 @@ def scenario_recycle(driver, verbose=config.config['verbose']):
 
 
 def scenario_change_password(driver, verbose=config.config['verbose']):
-    # do this if you are free and bored
-    pass
+    global is_logged_in
+    global current_logged_in
+    global accounts
+    
+    # 1. Check if is log in
+    if not is_logged_in:
+        scenario_login(driver=driver, verbose=verbose)
+    
+    # 2. change the password with the current time and update the json file
+    old_password = accounts[current_logged_in]['pw']
+    new_password = str(time.time())
+
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[6]').click()
+    random_sleep(1, 2)
+
+    # input the new password and update
+    driver.find_element_by_xpath('//*[@id="currentPassword"]').send_keys(old_password)
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="newPassword"]').send_keys(new_password)
+    driver.find_element_by_xpath('//*[@id="newPasswordRepeat"]').send_keys(new_password)
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="changeButton"]').click()
+    
+    # update the JSON and account
+    accounts[current_logged_in]['pw'] = new_password
+    with open('accounts.json', 'w') as f:
+        json.dump(accounts, f, indent=4)
+
+    return
 
 
 def scenario_about_us(driver, verbose=config.config['verbose']):
-    # do this if you are free and bored
+    
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[12]').click()
     random_sleep(1, 2)
 
     row_time = random.randint(0, 30)
 
-    #if verbose:
-    if True:
+    if verbose:
         print ("row time = " + str(row_time))
 
     for i in range(0, row_time):
@@ -313,7 +339,6 @@ def scenario_register(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
     global accounts
-    # please finish this at least
     # probably u need to register manually using raw_input() and append new user data to accounts and output to json
     # also see if it will automatically login after successfully registered. So u need to change the global variable.
     # (No, it won't)
@@ -366,4 +391,4 @@ def scenario_register(driver, verbose=config.config['verbose']):
 #add all your scenario function here
 #***********************************
 
-scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_about_us, scenario_register]
+scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_change_password, scenario_about_us, scenario_register]
