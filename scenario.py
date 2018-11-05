@@ -1,10 +1,13 @@
 import config
+
 # from selenium import webdriver
+import time
+import json
 import random
 from time import sleep
-import json
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+
 
 is_logged_in = False
 accounts = None
@@ -23,6 +26,7 @@ def random_sleep(min=config.config['sleep_min'],max=config.config['sleep_max'],v
         print('sleep for %d seconds' %(sleep_time))
     sleep(sleep_time)
 
+
 def random_comment(index, verbose=config.config['verbose']):
     '''
     Choose a random comment from good / bad comment list depends on the input index
@@ -33,6 +37,7 @@ def random_comment(index, verbose=config.config['verbose']):
     else:
         i = random.choice(range(len(config.bad_comments)))
         return config.bad_comments[i]
+
 
 def random_return_home(driver, prob=config.config['return_home_probability'], verbose=config.config['verbose']):
     '''
@@ -46,6 +51,7 @@ def random_return_home(driver, prob=config.config['return_home_probability'], ve
     if random_prob <= prob:
         driver.find_element_by_xpath('/html/body/nav/div/div/a[2]/span').click() 
         random_sleep()
+
 
 def comment_product(driver, prob=config.config["comment_product_probability"], verbose=config.config['verbose']):
     # if too fast, the product_review element cannot be found
@@ -66,6 +72,7 @@ def comment_product(driver, prob=config.config["comment_product_probability"], v
         print('click close')
     driver.find_element_by_xpath('/html/body/div[1]/div/div/section/footer/button').click()
 
+
 def add_product_to_cart(driver, product_id=None, verbose=config.config['verbose']):
     min_add = config.config["add_product_to_cart_min"]
     max_add = config.config["add_product_to_cart_max"]
@@ -85,6 +92,7 @@ def add_product_to_cart(driver, product_id=None, verbose=config.config['verbose'
                 driver.find_element_by_xpath(product).click()
         except NoSuchElementException:
             pass
+
 
 def scenario_click_product(driver, page='home', verbose=config.config['verbose']):   
     #driver.get(config.config['url'])
@@ -110,6 +118,7 @@ def scenario_click_product(driver, page='home', verbose=config.config['verbose']
                     add_product_to_cart(driver, product_id=product_id)
         except NoSuchElementException:
             pass
+
 
 def scenario_contact(driver, verbose=config.config['verbose']):
     '''
@@ -166,6 +175,7 @@ def scenario_contact(driver, verbose=config.config['verbose']):
     #send
     driver.find_element_by_xpath('//*[@id="submitButton"]').click()
 
+
 def scenario_login(driver, verbose=config.config['verbose']):
     random_sleep()
     global is_logged_in
@@ -190,7 +200,8 @@ def scenario_login(driver, verbose=config.config['verbose']):
         if verbose:
             print(email + 'is logged in')
         random_sleep(2, 3)
-   
+
+
 def scenario_logout(driver, verbose=config.config['verbose']):
     random_sleep(2, 3)
 
@@ -210,6 +221,7 @@ def scenario_logout(driver, verbose=config.config['verbose']):
     else:
          return
 
+
 def scenario_search(driver, verbose=config.config['verbose']):
     random_sleep()
 
@@ -219,7 +231,8 @@ def scenario_search(driver, verbose=config.config['verbose']):
     random_sleep()
     driver.find_element_by_xpath('//*[@id="searchButton"]').click()
     scenario_click_product(driver,page='search')
-    
+
+
 def scenario_checkout(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
@@ -239,6 +252,7 @@ def scenario_checkout(driver, verbose=config.config['verbose']):
     else:
         pass
 
+
 def scenario_track_order(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
@@ -255,23 +269,28 @@ def scenario_track_order(driver, verbose=config.config['verbose']):
     else:
         pass
 
+
 def scenario_complain(driver, verbose=config.config['verbose']):
     random_sleep()
     driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
     driver.find_element_by_xpath('//*[@id="submitButton"]').click()
     # skip the upload invoice, whatever
 
+
 def scenario_recycle(driver, verbose=config.config['verbose']):
     # do this if you are free and bored
     pass
+
 
 def scenario_change_password(driver, verbose=config.config['verbose']):
     # do this if you are free and bored
     pass
 
+
 def scenario_about_us(driver, verbose=config.config['verbose']):
     # do this if you are free and bored
     pass
+
 
 def scenario_register(driver, verbose=config.config['verbose']):
     global is_logged_in
@@ -298,7 +317,6 @@ def scenario_register(driver, verbose=config.config['verbose']):
     domain_type = [".com", ".org", ".gov", ".edu", ".mil", ".net", ".int", ".name", ".wtf"]
     domain_location = [".hk", ".cn", ".id", ".tw", ".au", ".jp", ".uk", ".nz", ".kp", ".kr"]
     # generate fake email account using time
-    import time
     current_time = str(time.time())
     email = current_time + "@" + \
         domain_name[random.randint(0,len(domain_name)-1)] + \
