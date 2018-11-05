@@ -4,6 +4,7 @@ import config
 import time
 import json
 import random
+import datetime
 from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
@@ -12,6 +13,13 @@ from selenium.common.exceptions import NoSuchElementException
 is_logged_in = False
 accounts = None
 current_logged_in = None
+
+HONK_KOND_DIST = ["Hong Kong Island", "Kowloon", "New Territories"]
+HONG_KONG_ADDR = {
+    "Hong Kong Island":["Central and Western", "Eastern", "Southern", "Wan Chai"],
+    "Kowloon":["Sham Shui Po", "Kowloon City", "Kwun Tong", "Wong Tai Sin", "Yau Tsim Mong"],
+    "New Territories":["Islands", "Kwai Tsing", "North", "Sai Kung", "Sha Tin", "Tai Po", "Tsuen Wan", "Tuen Mun", "Yuen Long"]
+}
 
 with open('accounts.json') as f:
     accounts = json.load(f)
@@ -278,8 +286,52 @@ def scenario_complain(driver, verbose=config.config['verbose']):
 
 
 def scenario_recycle(driver, verbose=config.config['verbose']):
-    # do this if you are free and bored
-    pass
+    global is_logged_in
+    global current_logged_in
+    global accounts
+    global HONK_KOND_DIST
+    global HONG_KONG_ADDR
+
+    # 1. Check if is log in
+    if not is_logged_in:
+        scenario_login(driver=driver, verbose=verbose)
+
+    # 2. input recycle request
+    
+    # Quantity
+    random_quan = random.randint(10, 1000)
+    
+    # Address
+    random_dist = random.randint(0, 2)
+    random_address = str(HONG_KONG_ADDR[HONK_KOND_DIST[random_dist]][random.randint(0, len(HONG_KONG_ADDR[HONK_KOND_DIST[random_dist]])-1)]) +\
+     str(HONK_KOND_DIST[random_dist]) +\
+     "Hong Kong SAR"
+
+    if verbose:
+        print ("Address: " + str(random_address))
+
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[8]').click()
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="recycleQuantity"]').send_keys(random_quan)
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="recycleAddress"]').send_keys(random_address)
+
+    if (random_quan > 100) and (random.randint(0, 1) == 1):
+        driver.find_element_by_xpath('//*[@id="isPickup"]').click()
+
+        pick_up_date = datetime.datetime.now() + datetime.timedelta(days=random.randint(0, 30))
+        
+        if verbose:
+            print ("00" + str(pick_up_date.year) + str(pick_up_date.month) + str(pick_up_date.day))
+        
+        random_sleep(1, 2)
+        driver.find_element_by_xpath('//*[@id="recyclePickupDate"]').send_keys("00" + str(pick_up_date.year) + str(pick_up_date.month) + str(pick_up_date.day))
+        
+
+    driver.find_element_by_xpath('//*[@id="submitButton"]').click()
+
+    return
+    
 
 
 def scenario_change_password(driver, verbose=config.config['verbose']):
@@ -391,4 +443,4 @@ def scenario_register(driver, verbose=config.config['verbose']):
 #add all your scenario function here
 #***********************************
 
-scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_change_password, scenario_about_us, scenario_register]
+scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_recycle, scenario_change_password, scenario_about_us, scenario_register]
