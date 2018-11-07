@@ -1,7 +1,31 @@
 import config
+
 # from selenium import webdriver
+import time
+import json
 import random
+import datetime
 from time import sleep
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+
+
+is_logged_in = False
+accounts = None
+current_logged_in = None
+
+HONK_KOND_DIST = ["Hong Kong Island", "Kowloon", "New Territories"]
+HONG_KONG_ADDR = {
+    "Hong Kong Island":["Central and Western", "Eastern", "Southern", "Wan Chai"],
+    "Kowloon":["Sham Shui Po", "Kowloon City", "Kwun Tong", "Wong Tai Sin", "Yau Tsim Mong"],
+    "New Territories":["Islands", "Kwai Tsing", "North", "Sai Kung", "Sha Tin", "Tai Po", "Tsuen Wan", "Tuen Mun", "Yuen Long"]
+}
+
+with open('accounts.json') as f:
+    accounts = json.load(f)
+    for ac in accounts:
+        #print(type(ac)) #dict
+        print(ac)
 
 def random_sleep(min=config.config['sleep_min'],max=config.config['sleep_max'],verbose=config.config['verbose']):
     assert(min<=max)
@@ -9,6 +33,7 @@ def random_sleep(min=config.config['sleep_min'],max=config.config['sleep_max'],v
     if verbose:
         print('sleep for %d seconds' %(sleep_time))
     sleep(sleep_time)
+
 
 def random_comment(index, verbose=config.config['verbose']):
     '''
@@ -20,6 +45,7 @@ def random_comment(index, verbose=config.config['verbose']):
     else:
         i = random.choice(range(len(config.bad_comments)))
         return config.bad_comments[i]
+
 
 def random_return_home(driver, prob=config.config['return_home_probability'], verbose=config.config['verbose']):
     '''
@@ -34,6 +60,7 @@ def random_return_home(driver, prob=config.config['return_home_probability'], ve
         driver.find_element_by_xpath('/html/body/nav/div/div/a[2]/span').click() 
         random_sleep()
 
+
 def comment_product(driver, prob=config.config["comment_product_probability"], verbose=config.config['verbose']):
     # if too fast, the product_review element cannot be found
     random_sleep(2, 3)
@@ -42,28 +69,64 @@ def comment_product(driver, prob=config.config["comment_product_probability"], v
     if random_prob <= prob:
         bias = random.randint(2,5) #tend to give good comment
         driver.find_element_by_xpath('//*[@id="product_review"]').send_keys(random_comment(bias))
-        random_sleep(min=10, max=20) #make it longer
+        random_sleep(min=5, max=8) #make it longer
        
         #send the comment
-        driver.find_element_by_xpath('//*[@id="submitButton"]/span').click() 
+        driver.find_element_by_xpath('//*[@id="submitButton"]').click() 
         random_sleep()
     
     #close the product window
-    driver.find_element_by_xpath('/html/body/div[1]/div/div/section/footer/button/span').click() 
+    if verbose:
+        print('click close')
+    driver.find_element_by_xpath('/html/body/div[1]/div/div/section/footer/button').click()
 
-def scenario_click_home_product(driver, verbose=config.config['verbose']):   
-    driver.get(config.config['url'])
+
+def add_product_to_cart(driver, product_id=None, verbose=config.config['verbose']):
+    min_add = config.config["add_product_to_cart_min"]
+    max_add = config.config["add_product_to_cart_max"]
+    r = random.randint(min_add,max_add)
+
+    for i in range(r):
+    #i dont know how to find all product in a page so i simply select the top one, please improve it if u know
+        try:
+            random_sleep(1,2)
+            if product_id == None:
+                driver.find_element_by_xpath('/html/body/main/div/section/table/tbody/tr[3]/td[5]/div/a[2]').click()
+            else :
+                #print('this should appear')
+                product = '/html/body/main/div/section/table/tbody/tr[' + str(product_id) +']/td[5]/div/a[2]'
+                #print(product)
+                #print(product == '/html/body/main/div/section/table/tbody/tr[2]/td[5]/div/a[2]')
+                driver.find_element_by_xpath(product).click()
+        except NoSuchElementException:
+            pass
+
+
+def scenario_click_product(driver, page='home', verbose=config.config['verbose']):   
+    #driver.get(config.config['url'])
     max_clicks = config.config["home_product_clicks_max"]
     min_clicks = config.config["home_product_clicks_min"]
     clicks = random.randint(min_clicks,max_clicks)
-    print(clicks)
+    if verbose:
+        print(clicks)
     for i in range(clicks):
-        random_sleep()
-        product_id = random.randint(2,29) 
-        product = "/html/body/main/div/section/table/tbody/tr["+str(product_id)+"]/td[5]/div/a[1]"
-        driver.find_element_by_xpath(product).click()
-        comment_product(driver)
-    
+        try:
+            random_sleep(2,3)
+            if page == 'home':
+                product_id = random.randint(2,29)
+            elif page == 'search':
+                 product_id = random.randint(2,2)
+            product = "/html/body/main/div/section/table/tbody/tr["+str(product_id)+"]/td[5]/div/a[1]"
+            driver.find_element_by_xpath(product).click()
+            comment_product(driver)
+            if is_logged_in:
+                #print('debug')
+                random_prob = random.random()
+                if random_prob <= config.config["add_product_to_cart_prob"]:
+                    add_product_to_cart(driver, product_id=product_id)
+        except NoSuchElementException:
+            pass
+
 
 def scenario_contact(driver, verbose=config.config['verbose']):
     '''
@@ -77,11 +140,11 @@ def scenario_contact(driver, verbose=config.config['verbose']):
     #driver = webdriver.Chrome('./chromedrivers/chromedriver')
 
     #go to main page
-    driver.get(config.config['url']) # You can change this to other url if you don't want to access from main page
+    #driver.get(config.config['url']) # You can change this to other url if you don't want to access from main page
     random_sleep()
 
     #click contact us 
-    driver.find_element_by_xpath('/html/body/nav/div/ul/li[7]/a/span').click() 
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[7]/a').click() 
     random_sleep()
     random_return_home(driver)
 
@@ -122,34 +185,262 @@ def scenario_contact(driver, verbose=config.config['verbose']):
 
 
 def scenario_login(driver, verbose=config.config['verbose']):
-    driver.get(config.config['url'])
+    random_sleep()
+    global is_logged_in
+    global current_logged_in 
+    if is_logged_in:
+        return
+    else:
+        driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+        random_sleep(1, 2)
+
+        # Choose a user credential randomly
+        uid = random.randint(0, len(accounts) - 1)
+        email = accounts[uid]['id']
+        passwd = accounts[uid]['pw']
+
+        current_logged_in = uid
+
+        driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
+        driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
+        driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+        is_logged_in = True
+        if verbose:
+            print(email + 'is logged in')
+        random_sleep(2, 3)
+
+
+def scenario_logout(driver, verbose=config.config['verbose']):
+    random_sleep(2, 3)
+
+    global is_logged_in
+    global current_logged_in
+    if is_logged_in:
+        try:
+            driver.find_element_by_xpath('/html/body/nav/div/ul/li[2]/a/span').click()
+            is_logged_in = False
+            current_logged_in = None
+
+            if verbose:
+                print('logged out')
+        except:
+            pass
+        random_sleep(2, 3)
+    else:
+         return
+
+
+def scenario_search(driver, verbose=config.config['verbose']):
     random_sleep()
 
+    r = random.randint(0, len(config.search_keyword) - 1)
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').clear()
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(config.search_keyword[r])
+    random_sleep()
+    driver.find_element_by_xpath('//*[@id="searchButton"]').click()
+    scenario_click_product(driver,page='search')
+
+
+def scenario_checkout(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+    if is_logged_in:
+        random_sleep(2,3)
+        driver.find_element_by_xpath('/html/body/nav/div/ul/li[5]/a').click()
+        driver.find_element_by_xpath('//*[@id="checkoutButton"]').click()
+
+        # wait 7 sec to ensure the browser jumped to order pdf
+        sleep(7) 
+        order = driver.current_url[39:-4]
+        print(order)
+        accounts[current_logged_in]['orders'].append(order)
+        with open('accounts.json', 'w') as f:
+            json.dump(accounts, f, indent=4)
+    else:
+        pass
+
+
+def scenario_track_order(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+    if is_logged_in:
+        random_sleep()
+        driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
+        try:
+            order = accounts[current_logged_in]['orders'].pop()
+            driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(order)
+            driver.find_element_by_xpath('//*[@id="trackButton"]').click()
+        except IndexError:
+            pass
+    else:
+        pass
+
+
+def scenario_complain(driver, verbose=config.config['verbose']):
+    random_sleep()
+    driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
+    driver.find_element_by_xpath('//*[@id="submitButton"]').click()
+    # skip the upload invoice, whatever
+
+
+def scenario_recycle(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+    global HONK_KOND_DIST
+    global HONG_KONG_ADDR
+
+    # 1. Check if is log in
+    if not is_logged_in:
+        scenario_login(driver=driver, verbose=verbose)
+
+    # 2. input recycle request
+    
+    # Quantity
+    random_quan = random.randint(10, 1000)
+    
+    # Address
+    random_dist = random.randint(0, 2)
+    random_address = str(HONG_KONG_ADDR[HONK_KOND_DIST[random_dist]][random.randint(0, len(HONG_KONG_ADDR[HONK_KOND_DIST[random_dist]])-1)]) +\
+     str(HONK_KOND_DIST[random_dist]) +\
+     "Hong Kong SAR"
+
+    if verbose:
+        print ("Address: " + str(random_address))
+
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[8]').click()
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="recycleQuantity"]').send_keys(random_quan)
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="recycleAddress"]').send_keys(random_address)
+
+    if (random_quan > 100) and (random.randint(0, 1) == 1):
+        driver.find_element_by_xpath('//*[@id="isPickup"]').click()
+
+        pick_up_date = datetime.datetime.now() + datetime.timedelta(days=random.randint(0, 30))
+        
+        if verbose:
+            print ("00" + str(pick_up_date.year) + str(pick_up_date.month) + str(pick_up_date.day))
+        
+        random_sleep(1, 2)
+        driver.find_element_by_xpath('//*[@id="recyclePickupDate"]').send_keys("00" + str(pick_up_date.year) + str(pick_up_date.month) + str(pick_up_date.day))
+        
+
+    driver.find_element_by_xpath('//*[@id="submitButton"]').click()
+
+    return
+    
+
+
+def scenario_change_password(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+    
+    # 1. Check if is log in
+    if not is_logged_in:
+        scenario_login(driver=driver, verbose=verbose)
+    
+    # 2. change the password with the current time and update the json file
+    old_password = accounts[current_logged_in]['pw']
+    new_password = str(time.time())
+
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[6]').click()
+    random_sleep(1, 2)
+
+    # input the new password and update
+    driver.find_element_by_xpath('//*[@id="currentPassword"]').send_keys(old_password)
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="newPassword"]').send_keys(new_password)
+    driver.find_element_by_xpath('//*[@id="newPasswordRepeat"]').send_keys(new_password)
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="changeButton"]').click()
+    
+    # update the JSON and account
+    accounts[current_logged_in]['pw'] = new_password
+    with open('accounts.json', 'w') as f:
+        json.dump(accounts, f, indent=4)
+
+    return
+
+
+def scenario_about_us(driver, verbose=config.config['verbose']):
+    
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[12]').click()
+    random_sleep(1, 2)
+
+    row_time = random.randint(0, 30)
+
+    if verbose:
+        print ("row time = " + str(row_time))
+
+    for i in range(0, row_time):
+        random_left_right = random.randint(0, 1)
+        if random_left_right == 0:
+            driver.find_element_by_xpath('/html/body/main/div/div/section[1]/div/div/a[1]').click()
+        else:
+            driver.find_element_by_xpath('/html/body/main/div/div/section[1]/div/div/a[2]').click()
+        random_sleep(1, 2)
+    
+    return
+
+
+def scenario_register(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+    # probably u need to register manually using raw_input() and append new user data to accounts and output to json
+    # also see if it will automatically login after successfully registered. So u need to change the global variable.
+    # (No, it won't)
+    if verbose:
+        print ("ENTER REGISTER")
+    # 1. if it is login, logout first
+    if is_logged_in:
+        scenario_logout(driver=driver, verbose=verbose)
+
+    # 2. if it is not login, register directly
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
     random_sleep(1, 2)
 
-    # Choose a user credential randomly
-    r = random.randint(0, len(config.users) - 1)
-    email = config.users[r][0]
-    passwd = config.users[r][1]
+    driver.find_element_by_xpath('/html/body/main/div/section/form/div[3]/aside/a[2]').click()
+    random_sleep(1, 2)
 
+    domain_name = ["ricci", "tao", "david", "petra", "albert", "ust", "hkust", "gmail", "yahoo", "hotmail", "hku", "cuhk"]
+    domain_type = [".com", ".org", ".gov", ".edu", ".mil", ".net", ".int", ".name", ".wtf"]
+    domain_location = [".hk", ".cn", ".id", ".tw", ".au", ".jp", ".uk", ".nz", ".kp", ".kr"]
+    # generate fake email account using time
+    current_time = str(time.time())
+    email = current_time + "@" + \
+        domain_name[random.randint(0,len(domain_name)-1)] + \
+        domain_type[random.randint(0,len(domain_type)-1)] + \
+        domain_location[random.randint(0,len(domain_location)-1)]
+    passwd = current_time
+    
     driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
     driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
-    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
-    random_sleep(2, 3)
-   
+    driver.find_element_by_xpath('//*[@id="userPasswordRepeat"]').send_keys(passwd)
+    Select(driver.find_element_by_xpath('//*[@id="securityQuestion"]')).select_by_value('9')
+    driver.find_element_by_xpath('//*[@id="securityAnswer"]').send_keys("0000")
+    driver.find_element_by_xpath('//*[@id="registerButton"]').click()
 
-def scenario_logout(driver, verbose=config.config['verbose']):
-    driver.get(config.config['url'])
-    random_sleep(2, 3)
 
-    try:
-        driver.find_element_by_xpath('/html/body/nav/div/ul/li[2]').click()
-    except:
-        pass
-    random_sleep(2, 3)
+    # update the json file
+    new_user = {
+        "id": email,
+        "pw": passwd,
+        "orders": []
+    }
+
+    accounts.append(new_user)
+    with open('accounts.json', 'w') as f:
+        json.dump(accounts, f, indent=4)
+    
+    return
 
 #***********************************
 #add all your scenario function here
 #***********************************
-scenario_list = [scenario_click_home_product,scenario_contact, scenario_login, scenario_logout]
+
+scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_recycle, scenario_change_password, scenario_about_us, scenario_register]
