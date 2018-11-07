@@ -1,3 +1,5 @@
 __pycache__
+chromedrivers/chromedriver
 test.py
 chromedrivers/chromedriver.exe
+*.pyc

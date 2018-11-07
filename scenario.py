@@ -5,6 +5,7 @@ import time
 import json
 import random
 import datetime
+import string
 from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
@@ -391,11 +392,10 @@ def scenario_register(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
     global accounts
-    # probably u need to register manually using raw_input() and append new user data to accounts and output to json
-    # also see if it will automatically login after successfully registered. So u need to change the global variable.
-    # (No, it won't)
+
     if verbose:
         print ("ENTER REGISTER")
+
     # 1. if it is login, logout first
     if is_logged_in:
         scenario_logout(driver=driver, verbose=verbose)
@@ -410,6 +410,7 @@ def scenario_register(driver, verbose=config.config['verbose']):
     domain_name = ["ricci", "tao", "david", "petra", "albert", "ust", "hkust", "gmail", "yahoo", "hotmail", "hku", "cuhk"]
     domain_type = [".com", ".org", ".gov", ".edu", ".mil", ".net", ".int", ".name", ".wtf"]
     domain_location = [".hk", ".cn", ".id", ".tw", ".au", ".jp", ".uk", ".nz", ".kp", ".kr"]
+    """
     # generate fake email account using time
     current_time = str(time.time())
     email = current_time + "@" + \
@@ -417,7 +418,16 @@ def scenario_register(driver, verbose=config.config['verbose']):
         domain_type[random.randint(0,len(domain_type)-1)] + \
         domain_location[random.randint(0,len(domain_location)-1)]
     passwd = current_time
-    
+    """
+    emailCharLength = random.randint(3, 12)
+    passwdCharLength = random.randint(8, 15)
+    email = ''.join(random.choices(string.ascii_letters + string.digits, k=emailCharLength)) + '@' + \
+        domain_name[random.randint(0, len(domain_name) - 1)] + \
+        domain_type[random.randint(0, len(domain_type) - 1)] + \
+        domain_location[random.randint(0, len(domain_location) - 1)]
+    # Usually passwords contain punctuation but not set right now because it may make the dataset noisy
+    passwd = ''.join(random.choices(string.ascii_letters + string.digits, k=passwdCharLength))
+
     driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
     driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
     driver.find_element_by_xpath('//*[@id="userPasswordRepeat"]').send_keys(passwd)
