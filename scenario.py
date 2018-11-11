@@ -9,11 +9,16 @@ import string
 from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
+from firebase import firebase
+
+firebase = firebase.FirebaseApplication('https://ml-sec-fyp.firebaseio.com', None)
 
 
 is_logged_in = False
-accounts = None
+accounts = []
 current_logged_in = None
+current_email = None
+cart_is_filled = False
 
 HONK_KOND_DIST = ["Hong Kong Island", "Kowloon", "New Territories"]
 HONG_KONG_ADDR = {
@@ -22,11 +27,17 @@ HONG_KONG_ADDR = {
     "New Territories":["Islands", "Kwai Tsing", "North", "Sai Kung", "Sha Tin", "Tai Po", "Tsuen Wan", "Tuen Mun", "Yuen Long"]
 }
 
+"""
 with open('accounts.json') as f:
     accounts = json.load(f)
     for ac in accounts:
         #print(type(ac)) #dict
         print(ac)
+"""
+
+for key in firebase.get('/accounts', None).keys():
+    accounts.append(key)
+
 
 def random_sleep(min=config.config['sleep_min'],max=config.config['sleep_max'],verbose=config.config['verbose']):
     assert(min<=max)
@@ -83,6 +94,8 @@ def comment_product(driver, prob=config.config["comment_product_probability"], v
 
 
 def add_product_to_cart(driver, product_id=None, verbose=config.config['verbose']):
+    global cart_is_filled
+
     min_add = config.config["add_product_to_cart_min"]
     max_add = config.config["add_product_to_cart_max"]
     r = random.randint(min_add,max_add)
@@ -99,6 +112,7 @@ def add_product_to_cart(driver, product_id=None, verbose=config.config['verbose'
                 #print(product)
                 #print(product == '/html/body/main/div/section/table/tbody/tr[2]/td[5]/div/a[2]')
                 driver.find_element_by_xpath(product).click()
+            cart_is_filled = True
         except NoSuchElementException:
             pass
 
@@ -189,16 +203,25 @@ def scenario_login(driver, verbose=config.config['verbose']):
     random_sleep()
     global is_logged_in
     global current_logged_in 
+    global current_email
     if is_logged_in:
         return
     else:
+        accounts = []
+        for key in firebase.get('/accounts', None).keys():
+            accounts.append(key)
+        if(len(accounts) == 0):
+            scenario_register()
+            random_sleep()
         driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
         random_sleep(1, 2)
 
         # Choose a user credential randomly
         uid = random.randint(0, len(accounts) - 1)
-        email = accounts[uid]['id']
-        passwd = accounts[uid]['pw']
+        current_email = accounts[uid]
+        acc = firebase.get('/accounts', current_email)
+        passwd = acc['pw']
+        email = current_email + '@' + acc['host']
 
         current_logged_in = uid
 
@@ -224,6 +247,8 @@ def scenario_logout(driver, verbose=config.config['verbose']):
 
             if verbose:
                 print('logged out')
+
+            cart_is_filled = False
         except:
             pass
         random_sleep(2, 3)
@@ -245,19 +270,33 @@ def scenario_search(driver, verbose=config.config['verbose']):
 def scenario_checkout(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
+    global current_email
     global accounts
+    global cart_is_filled
     if is_logged_in:
         random_sleep(2,3)
         driver.find_element_by_xpath('/html/body/nav/div/ul/li[5]/a').click()
+        if(not cart_is_filled):
+            driver.find_element_by_xpath('/html/body/nav/div/div/a[2]/span').click() 
+            random_sleep()
+            return
         driver.find_element_by_xpath('//*[@id="checkoutButton"]').click()
 
         # wait 7 sec to ensure the browser jumped to order pdf
         sleep(7) 
         order = driver.current_url[39:-4]
         print(order)
+        prev_order = firebase.get('/accounts/' + current_email, 'orders')
+        if(prev_order is None):
+            firebase.put('/accounts/' + current_email, 'orders', '{"' + order + '": true}')
+        else:
+            prev_order[order] = True
+            firebase.put('/accounts/' + current_email, 'orders', prev_order)
+        """
         accounts[current_logged_in]['orders'].append(order)
         with open('accounts.json', 'w') as f:
             json.dump(accounts, f, indent=4)
+        """
     else:
         pass
 
@@ -266,11 +305,19 @@ def scenario_track_order(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
     global accounts
+    global current_email
     if is_logged_in:
         random_sleep()
         driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
         try:
-            order = accounts[current_logged_in]['orders'].pop()
+            # order = accounts[current_logged_in]['orders'].pop()
+            orders = firebase.get('/accounts/' + current_email, 'orders')
+            if(orders is None):
+                driver.find_element_by_xpath('/html/body/nav/div/div/a[2]/span').click() 
+                random_sleep()
+                return
+            else:
+                order = random.choice(orders.keys())
             driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(order)
             driver.find_element_by_xpath('//*[@id="trackButton"]').click()
         except IndexError:
@@ -339,14 +386,17 @@ def scenario_change_password(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
     global accounts
+    global current_email
     
     # 1. Check if is log in
     if not is_logged_in:
         scenario_login(driver=driver, verbose=verbose)
     
     # 2. change the password with the current time and update the json file
-    old_password = accounts[current_logged_in]['pw']
-    new_password = str(time.time())
+    passwdCharLength = random.randint(8, 15)
+    # old_password = accounts[current_logged_in]['pw']
+    old_password = firebase.get('/accounts/' + current_email, 'pw')
+    new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=passwdCharLength))
 
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[6]').click()
     random_sleep(1, 2)
@@ -359,11 +409,17 @@ def scenario_change_password(driver, verbose=config.config['verbose']):
     random_sleep(1, 2)
     driver.find_element_by_xpath('//*[@id="changeButton"]').click()
     
+    # Update data
+    firebase.put('/accounts/' + current_email, 'pw', new_password)
+
+    """
     # update the JSON and account
     accounts[current_logged_in]['pw'] = new_password
     with open('accounts.json', 'w') as f:
         json.dump(accounts, f, indent=4)
 
+    """
+    random_sleep()
     return
 
 
@@ -410,16 +466,8 @@ def scenario_register(driver, verbose=config.config['verbose']):
     domain_name = ["ricci", "tao", "david", "petra", "albert", "ust", "hkust", "gmail", "yahoo", "hotmail", "hku", "cuhk"]
     domain_type = [".com", ".org", ".gov", ".edu", ".mil", ".net", ".int", ".name", ".wtf"]
     domain_location = [".hk", ".cn", ".id", ".tw", ".au", ".jp", ".uk", ".nz", ".kp", ".kr"]
-    """
-    # generate fake email account using time
-    current_time = str(time.time())
-    email = current_time + "@" + \
-        domain_name[random.randint(0,len(domain_name)-1)] + \
-        domain_type[random.randint(0,len(domain_type)-1)] + \
-        domain_location[random.randint(0,len(domain_location)-1)]
-    passwd = current_time
-    """
-    emailCharLength = random.randint(3, 12)
+
+    emailCharLength = random.randint(9, 12)
     passwdCharLength = random.randint(8, 15)
     email = ''.join(random.choices(string.ascii_letters + string.digits, k=emailCharLength)) + '@' + \
         domain_name[random.randint(0, len(domain_name) - 1)] + \
@@ -438,15 +486,18 @@ def scenario_register(driver, verbose=config.config['verbose']):
 
     # update the json file
     new_user = {
-        "id": email,
         "pw": passwd,
-        "orders": []
+        "orders": [],
+        "host": email.split('@')[1]
     }
 
-    accounts.append(new_user)
+    """
     with open('accounts.json', 'w') as f:
         json.dump(accounts, f, indent=4)
     
+    """
+    accounts.append(email)
+    firebase.put('/accounts', email.split('@')[0], new_user)
     return
 
 #***********************************
