@@ -115,10 +115,14 @@ def add_product_to_cart(driver, product_id=None, verbose=config.config['verbose'
             cart_is_filled = True
         except NoSuchElementException:
             pass
+    if(random.random() < 0.3):
+        scenario_checkout(driver)
 
 
 def scenario_click_product(driver, page='home', verbose=config.config['verbose']):   
     #driver.get(config.config['url'])
+    if(random.random() < 0.3):
+        scenario_login(driver)
     max_clicks = config.config["home_product_clicks_max"]
     min_clicks = config.config["home_product_clicks_min"]
     clicks = random.randint(min_clicks,max_clicks)
@@ -151,6 +155,8 @@ def scenario_contact(driver, verbose=config.config['verbose']):
     Then, follow by click() and send_keys() depends on what action you wanna do to that html element
     Also, use the random_sleep() function to create some random delay to make this natural
     '''
+    if(random.random() < 0.2):
+        return
     #initiate chrome
     #driver = webdriver.Chrome('./chromedrivers/chromedriver')
 
@@ -234,7 +240,9 @@ def scenario_login(driver, verbose=config.config['verbose']):
         random_sleep(2, 3)
 
 
-def scenario_logout(driver, verbose=config.config['verbose']):
+def scenario_logout(driver, verbose=config.config['verbose'], p=0.8):
+    if(random.random() < (1-p)):
+        return
     random_sleep(2, 3)
 
     global is_logged_in
@@ -259,6 +267,8 @@ def scenario_logout(driver, verbose=config.config['verbose']):
 def scenario_search(driver, verbose=config.config['verbose']):
     random_sleep()
 
+    if(random.random() < 0.3):
+        scenario_login(driver)
     r = random.randint(0, len(config.search_keyword) - 1)
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').clear()
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(config.search_keyword[r])
@@ -288,7 +298,8 @@ def scenario_checkout(driver, verbose=config.config['verbose']):
         print(order)
         prev_order = firebase.get('/accounts/' + current_email, 'orders')
         if(prev_order is None):
-            firebase.put('/accounts/' + current_email, 'orders', '{"' + order + '": true}')
+            orders = {order: True}
+            firebase.put('/accounts/' + current_email, 'orders', orders)
         else:
             prev_order[order] = True
             firebase.put('/accounts/' + current_email, 'orders', prev_order)
@@ -297,6 +308,7 @@ def scenario_checkout(driver, verbose=config.config['verbose']):
         with open('accounts.json', 'w') as f:
             json.dump(accounts, f, indent=4)
         """
+        driver.get(config.config['url'])
     else:
         pass
 
@@ -317,7 +329,7 @@ def scenario_track_order(driver, verbose=config.config['verbose']):
                 random_sleep()
                 return
             else:
-                order = random.choice(orders.keys())
+                order = random.choice(list(orders.keys()))
             driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(order)
             driver.find_element_by_xpath('//*[@id="trackButton"]').click()
         except IndexError:
@@ -327,6 +339,8 @@ def scenario_track_order(driver, verbose=config.config['verbose']):
 
 
 def scenario_complain(driver, verbose=config.config['verbose']):
+    if(random.random() < 0.2):
+        return
     random_sleep()
     driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
     driver.find_element_by_xpath('//*[@id="submitButton"]').click()
@@ -343,6 +357,9 @@ def scenario_recycle(driver, verbose=config.config['verbose']):
     # 1. Check if is log in
     if not is_logged_in:
         scenario_login(driver=driver, verbose=verbose)
+
+    if(random.random() < 0.4):
+        return
 
     # 2. input recycle request
     
@@ -388,6 +405,8 @@ def scenario_change_password(driver, verbose=config.config['verbose']):
     global accounts
     global current_email
     
+    if(random.random() < 0.8):
+        return
     # 1. Check if is log in
     if not is_logged_in:
         scenario_login(driver=driver, verbose=verbose)
@@ -419,16 +438,19 @@ def scenario_change_password(driver, verbose=config.config['verbose']):
         json.dump(accounts, f, indent=4)
 
     """
-    random_sleep()
+    scenario_logout(driver, p=1)
     return
 
 
 def scenario_about_us(driver, verbose=config.config['verbose']):
     
+    if(random.random() < 0.4):
+        return
+
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[12]').click()
     random_sleep(1, 2)
 
-    row_time = random.randint(0, 30)
+    row_time = random.randint(0, 10)
 
     if verbose:
         print ("row time = " + str(row_time))
@@ -452,9 +474,12 @@ def scenario_register(driver, verbose=config.config['verbose']):
     if verbose:
         print ("ENTER REGISTER")
 
+    if(random.random() < 0.5):
+        return
+
     # 1. if it is login, logout first
     if is_logged_in:
-        scenario_logout(driver=driver, verbose=verbose)
+        scenario_logout(driver=driver, verbose=verbose, p=1)
 
     # 2. if it is not login, register directly
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
@@ -504,4 +529,16 @@ def scenario_register(driver, verbose=config.config['verbose']):
 #add all your scenario function here
 #***********************************
 
-scenario_list = [scenario_login, scenario_logout, scenario_search, scenario_track_order, scenario_complain, scenario_checkout, scenario_click_product, scenario_contact, scenario_recycle, scenario_change_password, scenario_about_us, scenario_register]
+scenario_list = [
+        scenario_login,
+        scenario_logout,
+        scenario_search,
+        scenario_track_order,
+        scenario_complain,
+        scenario_checkout,
+        scenario_click_product,
+        scenario_contact,
+        scenario_recycle,
+        scenario_change_password,
+        scenario_about_us,
+        scenario_register]
