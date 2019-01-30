@@ -6,6 +6,7 @@ import json
 import random
 import datetime
 import string
+import paramiko
 from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
@@ -525,6 +526,43 @@ def scenario_register(driver, verbose=config.config['verbose']):
     firebase.put('/accounts', email.split('@')[0], new_user)
     return
 
+def scenario_xss_attack1(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+
+    if verbose:
+        print ("ENTER XSS ATTACK1")
+    
+    # 1. Set logstash
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    
+    random_sleep(120)
+
+    # 2. Check if is log in
+    if not is_logged_in:
+        scenario_login(driver=driver, verbose=verbose)
+
+
+    # 3. Attack under specific pattern
+    # 3-1. generate XSS pattern
+    attackKeyWord = ""
+    attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
+    
+    # 3-2. attack
+    attackLocation = random.randint(0, 1)
+    if attackLocation == 0:
+        # attack in the search bar
+        pass
+    elif attackLocation == 1:
+        # attack in the track orders
+        random_sleep()
+        driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
+        driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(attack)
+        driver.find_element_by_xpath('//*[@id="trackButton"]').click()
+
+
 #***********************************
 #add all your scenario function here
 #***********************************
@@ -541,4 +579,5 @@ scenario_list = [
         scenario_recycle,
         scenario_change_password,
         scenario_about_us,
-        scenario_register]
+        scenario_register,
+        scenario_xss_attack]
