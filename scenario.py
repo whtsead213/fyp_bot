@@ -28,6 +28,8 @@ HONG_KONG_ADDR = {
     "New Territories":["Islands", "Kwai Tsing", "North", "Sai Kung", "Sha Tin", "Tai Po", "Tsuen Wan", "Tuen Mun", "Yuen Long"]
 }
 
+ENGLISH_CHAR = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+
 """
 with open('accounts.json') as f:
     accounts = json.load(f)
@@ -526,7 +528,7 @@ def scenario_register(driver, verbose=config.config['verbose']):
     firebase.put('/accounts', email.split('@')[0], new_user)
     return
 
-def scenario_xss_attack1(driver, verbose=config.config['verbose']):
+def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
     global accounts
@@ -537,7 +539,8 @@ def scenario_xss_attack1(driver, verbose=config.config['verbose']):
     # 1. Set logstash
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    
+    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='albert_rsa')
+
     random_sleep(120)
 
     # 2. Check if is log in
@@ -547,21 +550,91 @@ def scenario_xss_attack1(driver, verbose=config.config['verbose']):
 
     # 3. Attack under specific pattern
     # 3-1. generate XSS pattern
-    attackKeyWord = ""
-    attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
+    attack = ""
     
-    # 3-2. attack
-    attackLocation = random.randint(0, 1)
-    if attackLocation == 0:
-        # attack in the search bar
+    attackType = random.randint(0, 8)
+    attackKeyWordLength = random.randint(1, 15)
+    if attackType == 0:
+        attackKeyWord = ""
+        attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
+    elif attackType == 1:
         pass
-    elif attackLocation == 1:
-        # attack in the track orders
-        random_sleep()
-        driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
-        driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(attack)
-        driver.find_element_by_xpath('//*[@id="trackButton"]').click()
+    elif attackType == 2:
+        pass
+    elif attackType == 3:
+        pass
+    elif attackType == 4:
+        pass
+    elif attackType == 5:
+        pass
+    elif attackType == 6:
+        pass
+    elif attackType == 7:
+        pass
+    elif attackType == 8:
+        pass
 
+    
+    # 3-2. attack in search bar
+    return
+
+def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+
+    if verbose:
+        print ("ENTER XSS ATTACK1")
+    
+    # 1. Set logstash
+    # hand set for testing
+    #ssh = paramiko.SSHClient()
+    #ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='albert_rsa')
+
+    #random_sleep(120)
+
+    # 2. Check if is log in
+    if not is_logged_in:
+        scenario_login(driver=driver, verbose=verbose)
+
+
+    # 3. Attack under specific pattern
+    # 3-1. generate XSS pattern
+    attack = ""
+
+    attackKeyWordLength = random.randint(1, 15)
+    # for testing
+    #if attackType == 0:
+    if True:
+        attackKeyWord = ""
+        for i in range(attackKeyWordLength):
+            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
+    elif attackType == 1:
+        pass
+    elif attackType == 2:
+        pass
+    elif attackType == 3:
+        pass
+    elif attackType == 4:
+        pass
+    elif attackType == 5:
+        pass
+    elif attackType == 6:
+        pass
+    elif attackType == 7:
+        pass
+    elif attackType == 8:
+        pass
+    
+    # 3-2. attack in tracking orders
+    random_sleep()
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
+    driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(attack)
+    driver.find_element_by_xpath('//*[@id="trackButton"]').click()
+
+    return
 
 #***********************************
 #add all your scenario function here
