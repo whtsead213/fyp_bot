@@ -234,8 +234,10 @@ def scenario_login(driver, verbose=config.config['verbose']):
 
         current_logged_in = uid
 
-        driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
-        driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
+        #driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
+        driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys("a@gmail.com")
+        #driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
+        driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys("abc123")
         driver.find_element_by_xpath('//*[@id="loginButton"]').click()
         is_logged_in = True
         if verbose:
