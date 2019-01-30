@@ -579,5 +579,10 @@ scenario_list = [
         scenario_recycle,
         scenario_change_password,
         scenario_about_us,
-        scenario_register,
-        scenario_xss_attack]
+        scenario_register
+]
+
+attack_scenario_list = [
+    scenario_xss_searchbar_attack,
+    scenario_xss_trackorders_attack
+]
