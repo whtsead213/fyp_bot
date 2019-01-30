@@ -602,7 +602,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     # 3. Attack under specific pattern
     # 3-1. generate XSS pattern
     attack = ""
-
+    attackType = random.randint(0, 8)
     attackKeyWordLength = random.randint(1, 15)
     # for testing
     #if attackType == 0:
