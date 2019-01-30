@@ -587,12 +587,16 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
         print ("ENTER XSS ATTACK1")
     
     # 1. Set logstash
-    # hand set for testing
-    #ssh = paramiko.SSHClient()
-    #ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='albert_rsa')
-
-    #random_sleep(120)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', password='Iwillchangemypasswdlater')
+    stdin, stdout, stderr = ssh.exec_command('make xss-log')
+    if verbose:
+        print (stdout.readlines())
+    
+    sleep(120)
+    ssh.close()
 
     # 2. Check if is log in
     if not is_logged_in:
@@ -633,7 +637,24 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
     driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(attack)
     driver.find_element_by_xpath('//*[@id="trackButton"]').click()
+    random_sleep()
+    driver.switch_to_alert().accept()
 
+    #4 turn of the xxs filter
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', password='Iwillchangemypasswdlater')
+    stdin, stdout, stderr = ssh.exec_command('make terminate-xss')
+    
+    if verbose:
+        print (stdout.readlines())
+    stdin, stdout, stderr = ssh.exec_command('make normal-log')
+
+    if verbose:
+        print (stdout.readlines())
+    
+    ssh.close()
     return
 
 #***********************************
