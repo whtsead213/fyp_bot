@@ -19,6 +19,12 @@ or
     
 ```python bot.py custom 1 2 3 2 1 0```
 
+or
+
+**custom attack mode**
+    
+```python bot.py custom-attack 1 2 3 2 1 0```
+
 each argument is the index of the scenario
        
        
