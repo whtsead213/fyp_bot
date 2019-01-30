@@ -591,8 +591,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     # 1. Set logstash
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', password='Iwillchangemypasswdlater')
+    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
     stdin, stdout, stderr = ssh.exec_command('make xss-log')
     if verbose:
         print (stdout.readlines())
@@ -645,8 +644,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     #4 turn of the xxs filter
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', password='Iwillchangemypasswdlater')
+    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
     stdin, stdout, stderr = ssh.exec_command('make terminate-xss')
     
     if verbose:
