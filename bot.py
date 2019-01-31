@@ -55,6 +55,13 @@ if __name__ == '__main__':
                         scenario_list[index](driver)
                     except NoSuchElementException:
                         continue
+
+    if mode == 'random-attack' or mode == 'ra':
+        for i in range(int(sys.argv[2])):
+            try:
+                random.choice(attack_scenario_list)(driver)
+            except NoSuchElementException:
+                continue
     if mode == 'custom-attack' or mode == 'ca':
         for i in range(len(sys.argv)):
             if i == 0 or i == 1:
