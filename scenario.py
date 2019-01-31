@@ -552,7 +552,7 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     if verbose:
         print (stdout.readlines())
     
-    sleep(120)
+    sleep(60)
     ssh.close()
 
     # 2. Check if is log in
@@ -658,7 +658,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     if verbose:
         print (stdout.readlines())
     
-    sleep(120)
+    sleep(60)
     ssh.close()
 
     # 2. Check if is log in
