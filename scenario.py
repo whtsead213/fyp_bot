@@ -543,6 +543,11 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    random_sleep()
+    stdin, stdout, stderr = ssh.exec_command('make terminate-normal')
+    if verbose:
+        print (stdout.readlines())
+    random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make xss-log')
     if verbose:
         print (stdout.readlines())
@@ -626,7 +631,8 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     stdin, stdout, stderr = ssh.exec_command('make normal-log')
     if verbose:
         print (stdout.readlines())
-    
+    random_sleep()
+
     ssh.close()
 
     return
@@ -643,6 +649,11 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    random_sleep()
+    stdin, stdout, stderr = ssh.exec_command('make terminate-normal')
+    if verbose:
+        print (stdout.readlines())
+    random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make xss-log')
     if verbose:
         print (stdout.readlines())
@@ -728,6 +739,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     stdin, stdout, stderr = ssh.exec_command('make normal-log')
     if verbose:
         print (stdout.readlines())
+    random_sleep()
     
     ssh.close()
     
