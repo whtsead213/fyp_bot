@@ -37,8 +37,10 @@ with open('accounts.json') as f:
         print(ac)
 """
 
-for key in firebase.get('/accounts', None).keys():
-    accounts.append(key)
+fireObj = firebase.get('/accounts', None)
+if fireObj:
+    for key in firebase.get('/accounts', None).keys():
+        accounts.append(key)
 
 
 def random_sleep(min=config.config['sleep_min'],max=config.config['sleep_max'],verbose=config.config['verbose']):
@@ -216,10 +218,12 @@ def scenario_login(driver, verbose=config.config['verbose']):
         return
     else:
         accounts = []
-        for key in firebase.get('/accounts', None).keys():
-            accounts.append(key)
+        fireObj = firebase.get('/accounts', None)
+        if fireObj:
+            for key in firebase.get('/accounts', None).keys():
+                accounts.append(key)
         if(len(accounts) == 0):
-            scenario_register()
+            scenario_register(driver=driver, verbose=verbose)
             random_sleep()
         driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
         random_sleep(1, 2)
@@ -233,10 +237,10 @@ def scenario_login(driver, verbose=config.config['verbose']):
 
         current_logged_in = uid
 
-        #driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
-        driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys("a@gmail.com")
-        #driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
-        driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys("abc123")
+        driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
+        #driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys("a@gmail.com")
+        driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
+        #driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys("abc123")
         driver.find_element_by_xpath('//*[@id="loginButton"]').click()
         is_logged_in = True
         if verbose:
@@ -731,20 +735,20 @@ def generate_true_sql_statement(case=True):
         # equal
         if random.randint(0, 1) == 0:
             # english character
-            word = random.choice(string.letters)
+            word = random.choice(string.ascii_letters)
             returnStatement = "\'" + word + "\'" + equalSign + "\'" + word + "\'"
         else:
             # numbers
             num = random.randint(0, 9)
-            returnStatement = "\'" + num + "\'" + equalSign + "\'" + num + "\'"
+            returnStatement = "\'" + str(num) + "\'" + equalSign + "\'" + str(num) + "\'"
     else:
         # non equal
         if random.randint(0, 1) == 0:
             # english character
-            word1 = random.choice(string.letters)
-            word2 = random.choice(string.letters)
+            word1 = random.choice(string.ascii_letters)
+            word2 = random.choice(string.ascii_letters)
             while word1 == word2:
-                word2 = random.choice(string.letters)
+                word2 = random.choice(string.ascii_letters)
             returnStatement = "\'" + word1 + "\'" + nonequalSign + "\'" + word2 + "\'"
         else:
             # numbers
@@ -752,7 +756,7 @@ def generate_true_sql_statement(case=True):
             num2 = random.randint(0, 9)
             while num1 == num2:
                 num2 = random.randint(0, 9)
-            returnStatement = "\'" + num1 + "\'" + nonequalSign + "\'" + num2 + "\'"
+            returnStatement = "\'" + str(num1) + "\'" + nonequalSign + "\'" + str(num2) + "\'"
 
     return returnStatement
 
@@ -811,6 +815,8 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
     randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
     
     # 3-2. attack in tracking orders
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+    random_sleep(1, 2)
     driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(attackHeader + attackFooter + "--")
     driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
     driver.find_element_by_xpath('//*[@id="loginButton"]').click()
