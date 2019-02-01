@@ -605,7 +605,7 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(attack)
     random_sleep()
     driver.find_element_by_xpath('//*[@id="searchButton"]').click()
-    random_sleep()
+    random_sleep(2,3)
     driver.switch_to_alert().accept()
     
     #4 turn of the xxs filter
@@ -701,7 +701,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
     driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(attack)
     driver.find_element_by_xpath('//*[@id="trackButton"]').click()
-    random_sleep()
+    random_sleep(2,3)
     driver.switch_to_alert().accept()
 
     #4 turn of the xxs filter
