@@ -19,7 +19,21 @@ or
     
 ```python bot.py custom 1 2 3 2 1 0```
 
-each argument is the index of the scenario
+or
+
+**random attack mode**
+
+```python bot.py random-attack 5```
+
+randomly pick an attack scenario 5 times        
+
+or
+
+**custom attack mode**
+    
+```python bot.py custom-attack 1 2 3 2 1 0```
+
+each argument is the index of the attack scenario
        
        
 You can also change the sleep duration and verbose in **config.py**

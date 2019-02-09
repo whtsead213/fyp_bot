@@ -3,7 +3,7 @@ import sys
 import random
 from datetime import datetime
 from selenium.common.exceptions import NoSuchElementException
-from scenario import scenario_list
+from scenario import scenario_list, attack_scenario_list
 from selenium import webdriver
 import config
 
@@ -55,5 +55,27 @@ if __name__ == '__main__':
                         scenario_list[index](driver)
                     except NoSuchElementException:
                         continue
+
+    if mode == 'random-attack' or mode == 'ra':
+        for i in range(int(sys.argv[2])):
+            try:
+                random.choice(attack_scenario_list)(driver)
+            except NoSuchElementException:
+                continue
+    if mode == 'custom-attack' or mode == 'ca':
+        for i in range(len(sys.argv)):
+            if i == 0 or i == 1:
+                continue
+            else:
+                index = int(sys.argv[i])
+                if (index >= len(attack_scenario_list) or index < 0):
+                    print('scenario value out of bound, skipped')
+                    continue
+                else:
+                    try:
+                        attack_scenario_list[index](driver)
+                    except NoSuchElementException:
+                        continue
+    
     print('Starting time: ' + starting_time)
     print('Ending time: ' + str(datetime.now()))
