@@ -12,7 +12,7 @@ from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from firebase import firebase
-
+from config import ssh_config
 firebase = firebase.FirebaseApplication('https://ml-sec-fyp.firebaseio.com', None)
 
 
@@ -252,7 +252,7 @@ def scenario_logout(driver, verbose=config.config['verbose'], p=0.8):
     if(random.random() < (1-p)):
         return
     random_sleep(2, 3)
-
+    global cart_is_filled
     global is_logged_in
     global current_logged_in
     if is_logged_in:
@@ -544,7 +544,7 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     # 1. Set logstash
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
     random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make terminate-normal')
     if verbose:
@@ -613,7 +613,7 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', password='Iwillchangemypasswdlater')
+    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
     random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make terminate-xss')
     if verbose:
@@ -639,7 +639,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     # 1. Set logstash
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
     random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make terminate-normal')
     if verbose:
@@ -709,7 +709,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', password='Iwillchangemypasswdlater')
+    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
     random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make terminate-xss')
     if verbose:
@@ -772,7 +772,7 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
     # 1. Set logstash
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
     random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make terminate-normal')
     if verbose:
@@ -826,7 +826,7 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
     #4 turn of the sql filter
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
+    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
     random_sleep()
     stdin, stdout, stderr = ssh.exec_command('make terminate-sql')
     if verbose:
