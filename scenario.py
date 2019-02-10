@@ -610,6 +610,7 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     driver.switch_to_alert().accept()
     
     #4 turn of the xxs filter
+    sleep(120)
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
@@ -706,6 +707,7 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
     driver.switch_to_alert().accept()
 
     #4 turn of the xxs filter
+    sleep(120)
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
@@ -824,6 +826,7 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
     is_logged_in = True
 
     #4 turn of the sql filter
+    sleep(120)
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
