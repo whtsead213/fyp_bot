@@ -12,7 +12,7 @@ from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from firebase import firebase
-from config import ssh_config
+
 firebase = firebase.FirebaseApplication('https://ml-sec-fyp.firebaseio.com', None)
 
 
@@ -252,7 +252,7 @@ def scenario_logout(driver, verbose=config.config['verbose'], p=0.8):
     if(random.random() < (1-p)):
         return
     random_sleep(2, 3)
-    global cart_is_filled
+
     global is_logged_in
     global current_logged_in
     if is_logged_in:
@@ -540,29 +540,13 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
 
     if verbose:
         print ("ENTER XSS ATTACK1")
-    
-    # 1. Set logstash
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make terminate-normal')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make xss-log')
-    if verbose:
-        print (stdout.readlines())
-    
-    sleep(120)
-    ssh.close()
 
-    # 2. Check if is log in
+    # 1. Check if is log in
     if not is_logged_in:
         scenario_login(driver=driver, verbose=verbose)
 
-    # 3. Attack under specific pattern
-    # 3-1. generate XSS pattern
+    # 2. Attack under specific pattern
+    # 2-1. generate XSS pattern
     attack = ""
     
     attackType = random.randint(0, 8)
@@ -601,32 +585,14 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
         attack = "<EMBED SRC=\"data:image/svg+xml;base64," + str(base64decodeString)[2:-1] + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
         
     
-    # 3-2. attack in search bar
+    # 2-2. attack in search bar
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').clear()
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(attack)
-    random_sleep()
+    random_sleep(5, 10)
     driver.find_element_by_xpath('//*[@id="searchButton"]').click()
     random_sleep(2,3)
     driver.switch_to_alert().accept()
     
-    #4 turn of the xxs filter
-    sleep(120)
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
-    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make terminate-xss')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()    
-    stdin, stdout, stderr = ssh.exec_command('make normal-log')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()
-
-    ssh.close()
-
     return
 
 def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
@@ -636,30 +602,13 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
 
     if verbose:
         print ("ENTER XSS ATTACK1")
-    
-    # 1. Set logstash
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make terminate-normal')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make xss-log')
-    if verbose:
-        print (stdout.readlines())
-    
-    sleep(120)
-    ssh.close()
 
-    # 2. Check if is log in
+    # 1. Check if is log in
     if not is_logged_in:
         scenario_login(driver=driver, verbose=verbose)
 
-
-    # 3. Attack under specific pattern
-    # 3-1. generate XSS pattern
+    # 2. Attack under specific pattern
+    # 2-1. generate XSS pattern
     attack = ""
     attackType = random.randint(0, 8)
     attackKeyWordLength = random.randint(1, 15)
@@ -697,33 +646,15 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
         base64decodeString = base64.b64encode(base64String.encode())
         attack = "<EMBED SRC=\"data:image/svg+xml;base64," + str(base64decodeString)[2:-1] + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
 
-    
-    # 3-2. attack in tracking orders
+    # 2-2. attack in tracking orders
     random_sleep()
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
     driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(attack)
+    random_sleep(5, 10)
     driver.find_element_by_xpath('//*[@id="trackButton"]').click()
     random_sleep(2,3)
     driver.switch_to_alert().accept()
 
-    #4 turn of the xxs filter
-    sleep(120)
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    #ssh.connect(hostname='vml1wk054.cse.ust.hk', username='root', key_filename='<your private key>', passphrase='<key passphrase>')
-    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make terminate-xss')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()    
-    stdin, stdout, stderr = ssh.exec_command('make normal-log')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()
-    
-    ssh.close()
-    
     return
 
 def generate_true_sql_statement(case=True):
@@ -771,28 +702,12 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
     if verbose:
         print ("ENTER SQl ATTACK")
     
-    # 1. Set logstash
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make terminate-normal')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make sql-log')
-    if verbose:
-        print (stdout.readlines())
-    
-    sleep(120)
-    ssh.close()
-
-    # 2. Check if is log in
+    # 1. Check if is log in
     if is_logged_in:
         scenario_logout(driver=driver, verbose=verbose)
 
-    # 3. Attack under specific pattern
-    # 3-1. generate SQL pattern
+    # 2. Attack under specific pattern
+    # 2-1. generate SQL pattern
     attackHeader = "\' or "
     attackFooter = generate_true_sql_statement(case=True)
     attackSessionLength = random.randint(0, 3)
@@ -817,7 +732,7 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
     attackPasswordLength = random.randint(1, 15)
     randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
     
-    # 3-2. attack in tracking orders
+    # 2-2. attack in tracking orders
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
     random_sleep(1, 2)
     driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(attackHeader + attackFooter + "--")
@@ -825,23 +740,6 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
     driver.find_element_by_xpath('//*[@id="loginButton"]').click()
     is_logged_in = True
 
-    #4 turn of the sql filter
-    sleep(120)
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=ssh_config['hostname'], username=ssh_config['username'], key_filename=ssh_config['key_filename'], passphrase=ssh_config['passphrase'])
-    random_sleep()
-    stdin, stdout, stderr = ssh.exec_command('make terminate-sql')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()    
-    stdin, stdout, stderr = ssh.exec_command('make normal-log')
-    if verbose:
-        print (stdout.readlines())
-    random_sleep()
-    
-    ssh.close()
-    
     return
 
 #***********************************
