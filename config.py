@@ -1,5 +1,8 @@
 config = {
     "url" : "https://vml1wk054.cse.ust.hk",
+    "normal_url": "https://vml1wk054.cse.ust.hk/normal",
+    "xss_url": "https://vml1wk054.cse.ust.hk/xss",
+    "sql_url": "https://vml1wk054.cse.ust.hk/sql",
     "verbose" : False,
     "sleep_min": 5,
     "sleep_max": 15,
