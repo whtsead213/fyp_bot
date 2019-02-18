@@ -13,7 +13,8 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from firebase import firebase
 
-firebase = firebase.FirebaseApplication('https://ml-sec-fyp.firebaseio.com', None)
+#firebase = firebase.FirebaseApplication('https://ml-sec-fyp.firebaseio.com', None)
+firebase = firebase.FirebaseApplication('https://hkust-fyp-ricwta01.firebaseio.com/', None)
 
 
 is_logged_in = False
