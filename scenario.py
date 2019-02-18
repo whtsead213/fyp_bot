@@ -475,7 +475,7 @@ def scenario_about_us(driver, verbose=config.config['verbose']):
     return
 
 
-def scenario_register(driver, verbose=config.config['verbose']):
+def scenario_register(driver, login_after_register=False, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
     global accounts
@@ -528,10 +528,20 @@ def scenario_register(driver, verbose=config.config['verbose']):
     """
     with open('accounts.json', 'w') as f:
         json.dump(accounts, f, indent=4)
-    
     """
+
     accounts.append(email)
     firebase.put('/accounts', email.split('@')[0], new_user)
+
+    if login_after_register:
+        driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
+        driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
+        driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+        
+        is_logged_in = True
+        if verbose:
+            print(email + 'is logged in')
+
     return
 
 def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
