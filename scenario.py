@@ -555,14 +555,19 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
 
     # 1. Check if is log in
     if not is_logged_in:
-        scenario_login(driver=driver, verbose=verbose)
+        loginType = random.randint(0, 1)
+        if loginType == 0:
+            scenario_login(driver=driver, verbose=verbose)
+        elif loginType == 1:
+            scenario_register(driver=driver, login_after_register=True, verbose=verbose)
 
     # 2. Attack under specific pattern
     # 2-1. generate XSS pattern
     attack = ""
-    
+    random_sleep(1, 3)
     attackType = random.randint(0, 8)
     attackKeyWordLength = random.randint(1, 15)
+    
     if attackType == 0:
         attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
@@ -617,11 +622,16 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
 
     # 1. Check if is log in
     if not is_logged_in:
-        scenario_login(driver=driver, verbose=verbose)
+        loginType = random.randint(0, 1)
+        if loginType == 0:
+            scenario_login(driver=driver, verbose=verbose)
+        elif loginType == 1:
+            scenario_register(driver=driver, login_after_register=True, verbose=verbose)
 
     # 2. Attack under specific pattern
     # 2-1. generate XSS pattern
     attack = ""
+    random_sleep(1, 3)
     attackType = random.randint(0, 8)
     attackKeyWordLength = random.randint(1, 15)
     
@@ -715,8 +725,12 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
         print ("ENTER SQl ATTACK")
     
     # 1. Check if is log in
-    if is_logged_in:
-        scenario_logout(driver=driver, verbose=verbose)
+    if not is_logged_in:
+        loginType = random.randint(0, 1)
+        if loginType == 0:
+            scenario_login(driver=driver, verbose=verbose)
+        elif loginType == 1:
+            scenario_register(driver=driver, login_after_register=True, verbose=verbose)
 
     # 2. Attack under specific pattern
     # 2-1. generate SQL pattern
