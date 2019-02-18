@@ -534,6 +534,7 @@ def scenario_register(driver, login_after_register=False, verbose=config.config[
     firebase.put('/accounts', email.split('@')[0], new_user)
 
     if login_after_register:
+        random_sleep(2, 3)
         driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
         driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(passwd)
         driver.find_element_by_xpath('//*[@id="loginButton"]').click()
