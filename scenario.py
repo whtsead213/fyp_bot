@@ -825,6 +825,14 @@ def scenario_error_message_login_with_single_quote_attack(driver, verbose=config
     return
 
 def scenario_redirect_attack(driver, verbose=config.config['verbose']):
+
+    if verbose:
+        print ("ENTER REDIRECT ATTACK")
+        
+    driver.get(config.config['url'] + "/redirect?to=https://gratipay.com/juice-shop")
+
+    return
+
 #***********************************
 #add all your scenario function here
 #***********************************
@@ -850,4 +858,5 @@ attack_scenario_list = [
     scenario_sql_login_attack,
     scenario_admin_login_without_passwd_attack,
     scenario_error_message_login_with_single_quote_attack,
+    scenario_redirect_attack
 ]
