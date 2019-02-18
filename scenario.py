@@ -758,7 +758,7 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
     attackPasswordLength = random.randint(1, 15)
     randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
     
-    # 2-2. attack in tracking orders
+    # 2-2. attack in loggin in
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
     random_sleep(1, 2)
     driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(attackHeader + attackFooter + "--")
