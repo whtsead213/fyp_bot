@@ -567,7 +567,7 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     random_sleep(1, 3)
     attackType = random.randint(0, 8)
     attackKeyWordLength = random.randint(1, 15)
-    
+
     if attackType == 0:
         attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
