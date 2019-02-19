@@ -1,5 +1,5 @@
-import time
 import requests
+from datetime import datetime
 from firebase import firebase
 
 #firebase = firebase.FirebaseApplication('https://ml-sec-fyp.firebaseio.com', None)
@@ -75,7 +75,7 @@ def normal_record(normal_scenario, access_time, creater):
         "scenario": normal_scenario,
         "creater": creater,
         "access_time": access_time,
-        "record_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        "record_time": str(datetime.now())
     }
 
     firebase.put('/attacks/normal/actions', str(normal_count), normal)
@@ -101,7 +101,7 @@ def attack_record(attack_type=None, attack_scenario=None, attack_time=None, atta
         "scenario": attack_scenario,
         "attacker": attacker,
         "attack_time": attack_time,
-        "record_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        "record_time": str(datetime.now())
     }
 
     firebase.put('/attacks/' + attack_type + "/attacks", str(attack_count), attack)
