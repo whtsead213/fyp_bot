@@ -59,6 +59,28 @@ def set_passwd(email, password):
     return
 
 
+def normal_record(normal_scenario, access_time, creater):
+    # 1. Update the total normal count
+    normal_count = firebase.get('/attacks/normal', 'count')
+    if normal_count:
+        normal_count += 1
+        firebase.put('/attacks/normal', 'count', normal_count)
+    else:
+        normal_count = 1
+        firebase.put('/attacks/normal', 'count', normal_count)
+
+    # 2. Record account detail
+    normal = {
+        "number": normal_count,
+        "scenario": normal_scenario,
+        "creater": creater,
+        "access_time": access_time,
+        "record_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    }
+
+    firebase.put('/attacks/normal/actions', str(normal_count), normal)
+
+
 def attack_record(attack_type=None, attack_scenario=None, attack_time=None, attacker=None):
     if attack_type == None or attack_scenario == None:
         return
