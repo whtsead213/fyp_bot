@@ -1,4 +1,5 @@
 import config
+import firebaseDAO as fireDAO
 
 # from selenium import webdriver
 import time
@@ -38,10 +39,8 @@ with open('accounts.json') as f:
         print(ac)
 """
 
-fireObj = firebase.get('/accounts', None)
-if fireObj:
-    for key in firebase.get('/accounts', None).keys():
-        accounts.append(key)
+if fireDAO.firebase_get('/accounts', None):
+    accounts = fireDAO.append_accounts()
 
 
 def random_sleep(min=config.config['sleep_min'],max=config.config['sleep_max'],verbose=config.config['verbose']):
@@ -219,10 +218,8 @@ def scenario_login(driver, verbose=config.config['verbose']):
         return
     else:
         accounts = []
-        fireObj = firebase.get('/accounts', None)
-        if fireObj:
-            for key in firebase.get('/accounts', None).keys():
-                accounts.append(key)
+        if fireDAO.firebase_get('/accounts', None):
+            accounts = fireDAO.append_accounts()
         if(len(accounts) == 0):
             scenario_register(driver=driver, verbose=verbose)
             random_sleep()
@@ -232,7 +229,7 @@ def scenario_login(driver, verbose=config.config['verbose']):
         # Choose a user credential randomly
         uid = random.randint(0, len(accounts) - 1)
         current_email = accounts[uid]
-        acc = firebase.get('/accounts', current_email)
+        acc = fireDAO.get_account(current_email)
         passwd = acc['pw']
         email = current_email + '@' + acc['host']
 
@@ -305,13 +302,13 @@ def scenario_checkout(driver, verbose=config.config['verbose']):
         sleep(7) 
         order = driver.current_url[39:-4]
         print(order)
-        prev_order = firebase.get('/accounts/' + current_email, 'orders')
+        prev_order = fireDAO.get_order(current_email)
         if(prev_order is None):
             orders = {order: True}
-            firebase.put('/accounts/' + current_email, 'orders', orders)
+            fireDAO.set_order(current_email, orders)
         else:
             prev_order[order] = True
-            firebase.put('/accounts/' + current_email, 'orders', prev_order)
+            fireDAO.set_order(current_email, prev_order)
         """
         accounts[current_logged_in]['orders'].append(order)
         with open('accounts.json', 'w') as f:
@@ -332,7 +329,7 @@ def scenario_track_order(driver, verbose=config.config['verbose']):
         driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
         try:
             # order = accounts[current_logged_in]['orders'].pop()
-            orders = firebase.get('/accounts/' + current_email, 'orders')
+            orders = fireDAO.get_order(current_email)
             if(orders is None):
                 driver.find_element_by_xpath('/html/body/nav/div/div/a[2]/span').click() 
                 random_sleep()
@@ -423,7 +420,7 @@ def scenario_change_password(driver, verbose=config.config['verbose']):
     # 2. change the password with the current time and update the json file
     passwdCharLength = random.randint(8, 15)
     # old_password = accounts[current_logged_in]['pw']
-    old_password = firebase.get('/accounts/' + current_email, 'pw')
+    old_password = fireDAO.get_passwd(current_email)
     new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=passwdCharLength))
 
     driver.find_element_by_xpath('/html/body/nav/div/ul/li[6]').click()
@@ -438,7 +435,7 @@ def scenario_change_password(driver, verbose=config.config['verbose']):
     driver.find_element_by_xpath('//*[@id="changeButton"]').click()
     
     # Update data
-    firebase.put('/accounts/' + current_email, 'pw', new_password)
+    fireDAO.set_passwd(current_email, new_password)
 
     """
     # update the JSON and account
@@ -531,7 +528,7 @@ def scenario_register(driver, login_after_register=False, verbose=config.config[
     """
 
     accounts.append(email)
-    firebase.put('/accounts', email.split('@')[0], new_user)
+    fireDAO.set_account(email.split('@')[0], new_user)
 
     if login_after_register:
         random_sleep(2, 3)
