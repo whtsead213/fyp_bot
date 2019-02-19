@@ -6,6 +6,7 @@ from selenium.common.exceptions import NoSuchElementException
 from scenario import scenario_list, attack_scenario_list
 from selenium import webdriver
 import config
+import firebaseDAO
 
 def create_driver(url):
     driver = webdriver.Chrome('./chromedrivers/chromedriver')
@@ -36,15 +37,15 @@ if __name__ == '__main__':
     print('Argument List: ', str(sys.argv))
     print('Bot mode: ' + mode)
     starting_time = str(datetime.now())
-    
-    
-
 
     if mode == 'random' or mode == 'r':
         driver = create_driver(url="url")
         for i in range(int(sys.argv[2])):
             try:
-                random.choice(scenario_list)(driver)
+                scenario = random.choice(scenario_list)
+                firebaseDAO.normal_record(str(scenario), str(datetime.now()), "PLEASE TYPE YOUR NAME HERE") 
+                scenario(driver)
+                
             except NoSuchElementException:
                 continue
     if mode == 'custom' or mode == 'c':
@@ -59,6 +60,7 @@ if __name__ == '__main__':
                     continue
                 else:
                     try:
+                        firebaseDAO.normal_record(str(scenario_list[index]), str(datetime.now()), "PLEASE TYPE YOUR NAME HERE")
                         scenario_list[index](driver)
                     except NoSuchElementException:
                         continue
@@ -75,11 +77,16 @@ if __name__ == '__main__':
                 else:
                     if index == 0 or index == 1:
                         attack_url = "xss_url"
+                        attack_type = "xss"
                     elif index == 2:
                         attack_url = "sql_url"
-
+                        attack_type = "sql_inj"
+                    else:
+                        attack_url = "normal_url"
+                        attack_type = "other"
                     driver = create_driver(url=attack_url)
                     try:
+                        firebaseDAO.attack_record(attack_type=attack_type, attack_scenario=str(attack_scenario_list[index]), attack_time=str(datetime.now()), attacker="PLEASE TYPE YOUR NAME HERE")
                         attack_scenario_list[index](driver)
                     except NoSuchElementException:
                         continue
