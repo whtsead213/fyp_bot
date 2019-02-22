@@ -59,7 +59,7 @@ if __name__ == '__main__':
         for i in range(int(sys.argv[2])):
             try:
                 scenario = random.choice(scenario_list)
-                firebaseDAO.normal_record(str(scenario), str(datetime.now()), "PLEASE TYPE YOUR NAME HERE") 
+                firebaseDAO.normal_record(str(scenario), str(datetime.now()), config.config['user_Albert']) 
                 scenario(driver)
                 
             except NoSuchElementException:
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                     continue
                 else:
                     try:
-                        firebaseDAO.normal_record(str(scenario_list[index]), str(datetime.now()), "PLEASE TYPE YOUR NAME HERE")
+                        firebaseDAO.normal_record(str(scenario_list[index]), str(datetime.now()), config.config['user_Albert'])
                         scenario_list[index](driver)
                     except NoSuchElementException:
                         continue
@@ -102,10 +102,12 @@ if __name__ == '__main__':
                         attack_type = "other"
                     driver = create_driver(url="url", port=config.config[attack_port])
                     try:
-                        firebaseDAO.attack_record(attack_type=attack_type, attack_scenario=str(attack_scenario_list[index]), attack_time=str(datetime.now()), attacker="PLEASE TYPE YOUR NAME HERE")
+                        firebaseDAO.attack_record(attack_type=attack_type, attack_scenario=str(attack_scenario_list[index]), attack_time=str(datetime.now()), attacker=config.config['user_Albert'])
                         attack_scenario_list[index](driver)
                     except NoSuchElementException:
                         continue
     
+    driver.close()
+    server.stop()
     print('Starting time: ' + starting_time)
     print('Ending time: ' + str(datetime.now()))
