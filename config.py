@@ -34,6 +34,18 @@ bad_comments = ['pathetic','horrible','ARE YOU KIDDING ME?','Soooooooooooo bad',
 
 search_keyword = ['hoodie','hoodie', 'apple','apple','apple','juice','juice', 'Juice', 'owasp','orange', 'pizza', 'happiness']
 
+domain_name = ["ricci", "tao", "david", "petra", "albert", "ust", "hkust", "gmail", "yahoo", "hotmail", "hku", "cuhk"]
+domain_type = [".com", ".org", ".gov", ".edu", ".mil", ".net", ".int", ".name", ".wtf"]
+domain_location = [".hk", ".cn", ".id", ".tw", ".au", ".jp", ".uk", ".nz", ".kp", ".kr"]
+
+HONK_KOND_DIST = ["Hong Kong Island", "Kowloon", "New Territories"]
+
+HONG_KONG_ADDR = {
+    "Hong Kong Island":["Central and Western", "Eastern", "Southern", "Wan Chai"],
+    "Kowloon":["Sham Shui Po", "Kowloon City", "Kwun Tong", "Wong Tai Sin", "Yau Tsim Mong"],
+    "New Territories":["Islands", "Kwai Tsing", "North", "Sai Kung", "Sha Tin", "Tai Po", "Tsuen Wan", "Tuen Mun", "Yuen Long"]
+}
+
 ssh_config = {
     "hostname":"vml1wk054.cse.ust.hk",
     "username":"root",
