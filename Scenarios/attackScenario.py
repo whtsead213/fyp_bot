@@ -365,13 +365,9 @@ class SQLAttack(Attack):
             print ("ENTER SQL LOGIN ATTACK")
 
         # 1. Check if is log in
-        if not self.is_logged_in:
-            loginType = random.randint(0, 1)
-            if loginType == 0:
-                self.scenario_login()
-            elif loginType == 1:
-                self.scenario_register(login_after_register=True)
-            self.is_logged_in = True
+        if self.is_logged_in:
+            self.scenario_logout()
+            self.is_logged_in = False
 
         # 2. Attack under specific pattern
         # 2-1. generate SQL pattern
