@@ -33,7 +33,7 @@ $ python bot.py -c1 1 2 3 2 1 0
 
 ### Attack Action
 
-####attack mode
+#### Attack Mode
     
 ```sh
 $ python bot.py -a xss 0
