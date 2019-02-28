@@ -34,9 +34,6 @@ def create_driver(port):
     driver.get('localhost:' + str(port))
 
     try:
-        if port == 43333:
-            sleep(5)
-            driver.switch_to_alert().accept()   # this is temparary implemented since an xss item is added
         #dismiss the cookie message since it make the close button untouchable
         driver.find_element_by_xpath('/html/body/div[1]/div/a').click()
         print('dismissed cookie')
