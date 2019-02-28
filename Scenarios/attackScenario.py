@@ -555,12 +555,13 @@ class XSSAttack(Attack):
 
         # Check if is log in
         if not self.is_logged_in:
-            loginType = random.randint(0, 1)
+            loginType = random.randint(0, 2)
             if loginType == 0:
                 self.scenario_login()
+                self.is_logged_in = True
             elif loginType == 1:
                 self.scenario_register(login_after_register=True)
-            self.is_logged_in = True
+                self.is_logged_in = True
 
         attack = ""
         random_sleep(1, 3)
