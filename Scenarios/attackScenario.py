@@ -42,7 +42,7 @@ class DosAttack(Attack):
         
         pausing_time = random.randint(1, 2000)
         self.driver.get("http://localhost:" + str(config[self.attackType + "_port"]) + "/rest/product/sleep(" + str(pausing_time) + ")/reviews")
-        random_sleep(pausing_time, pausing_time+1)
+        random_sleep(pausing_time//20, pausing_time//10)
         
         return
 
