@@ -3,7 +3,16 @@ config = {
     "normal_port": 43333,
     "xss_port": 43334,
     "sql_port": 43335,
-    "verbose" : False,
+    #===============temp===============
+    "dos_port": 43333,
+    "error_port": 43333,
+    "tampering_port": 43333,
+    "xxe_port": 43333,
+    "file_upload_port": 43333,
+    "site_visiting_port": 43333,
+    #==================================
+    "set_up_mode": False,
+    "verbose": False,
     "user_David": "David",
     "user_Petra": "Petra",
     "user_Albert": "Albert",
