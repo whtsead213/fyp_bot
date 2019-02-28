@@ -568,4 +568,7 @@ class XSSAttack(Attack):
         attackKeyWordLength = random.randint(1, 100)
         attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         attack = "<<script>Foo</script>iframe src=\"javascript:alert(`" + attackKeyWord + "`)\">"
+        
+        self.scenario_contact(contant=attack)
+        
         return
