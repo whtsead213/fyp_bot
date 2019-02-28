@@ -113,13 +113,24 @@ class XXEAttack(Attack):
         if self.verbose:
             print ("ENTER XXS RETRIEVE PASSWORD ATTACK")
 
-        # 1. move to the complaint page
+        # 1. Check if is log in
+        if not self.is_logged_in:
+            loginType = random.randint(0, 2)
+            if loginType == 0:
+                self.scenario_login()
+                self.is_logged_in = True
+            elif loginType == 1:
+                self.scenario_register()
+                self.is_logged_in = True
+
+        random_sleep()
+        # 2. move to the complaint page
         self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[10]').click()
         random_sleep()
 
-        # 2. type command and upload file
+        # 3. type command and upload file
         self.driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
-        self.driver.find_element_by_xpath('//*[@id="file"]').send_keys("xxe_tier1.xml")
+        self.driver.find_element_by_xpath('//*[@id="file"]').send_keys("Scenarios/xxe_tier1.xml")
         self.driver.find_element_by_xpath('//*[@id="submitButton"]').click()
 
         return
