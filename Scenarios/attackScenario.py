@@ -31,6 +31,9 @@ class DosAttack(Attack):
     def __init__(self, driver, attackType, firebaseDAO):
         super(DosAttack, self).__init__(driver=driver, attackType=attackType, firebaseDAO=firebaseDAO)
 
+        self.attack_scenario_list = [
+            self.scenario_server_random_sleep_attack
+        ]
 
     def scenario_server_random_sleep_attack(self):
         if self.verbose:
@@ -46,7 +49,10 @@ class DosAttack(Attack):
 class ErrorAttack(Attack):
     def __init__(self, driver, attackType, firebaseDAO):
         super(ErrorAttack, self).__init__(driver=driver, attackType=attackType, firebaseDAO=firebaseDAO)
-
+        
+        self.attack_scenario_list = [
+            self.scenario_error_message_login_with_single_quote_attack
+        ]
 
     def scenario_error_message_login_with_single_quote_attack(self):
         if self.verbose:
@@ -75,7 +81,10 @@ class ErrorAttack(Attack):
 class TamperingAttack(Attack):
     def __init__(self, driver, attackType, firebaseDAO):
         super(TamperingAttack, self).__init__(driver=driver, attackType=attackType, firebaseDAO=firebaseDAO)
-    
+
+        self.attack_scenario_list = [
+            self.scenario_link_tampering
+        ]
 
     def scenario_link_tampering(self):
         if self.verbose:
@@ -96,6 +105,9 @@ class XXEAttack(Attack):
     def __init__(self, driver, attackType, firebaseDAO):
         super(XXEAttack, self).__init__(driver=driver, attackType=attackType, firebaseDAO=firebaseDAO)
 
+        self.attack_scenario_list = [
+            self.scenario_xxe_retrieve_passwd_attack
+        ]
     
     def scenario_xxe_retrieve_passwd_attack(self):
         if self.verbose:
@@ -117,6 +129,10 @@ class FileUploadAttack(Attack):
     def __init__(self, driver, attackType, firebaseDAO):
         super(FileUploadAttack, self).__init__(driver=driver, attackType=attackType, firebaseDAO=firebaseDAO)
 
+        self.attack_scenario_list = [
+            self.scenario_upload_bigger_file,
+            self.scenario_upload_non_pdf_file
+        ]
 
     def scenario_upload_bigger_file(self):
         if self.verbose:
@@ -162,6 +178,13 @@ class SiteVisitingAttack(Attack):
     def __init__(self, driver, attackType, firebaseDAO):
         super(SiteVisitingAttack, self).__init__(driver=driver, attackType=attackType, firebaseDAO=firebaseDAO)
 
+        self.attack_scenario_list = [
+            self.scenario_redirect1_attack,
+            self.scenario_redirect2_attack,
+            self.scenario_find_easter_egg_attack,
+            self.scenario_access_signature_file_attack,
+            self.scenario_undefine_language_attack
+        ]
 
     def scenario_redirect1_attack(self):
         if self.verbose:
