@@ -30,7 +30,7 @@ same here, -c1 to -c6 are using different port to create normal logs
 xss specifys the attack type, and 1 means the first attack in the attack list of the specific attack
 
 
-**attack type**
+##attack type
 
 ***DOS***
 
