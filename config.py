@@ -33,7 +33,7 @@ config = {
 #add more comment when you are free
 good_comments = ['Impressive','WOW','amazing!','One of my favorites!','I like this!','Thanks', 'amazing!', 'Interesting!', 'the products are good!!','Thank you','admin is nice','Not bad.','Good','Nice','I like this website','Great','splendid']
 
-bad_comments = ['pathetic','horrible','ARE YOU KIDDING ME?','Soooooooooooo bad','I hate this', 'Garbage!','POOR SERVICE!!!!!','The ui is ugly','this is bad']
+bad_comments = ['pathetic','horrible','ARE YOU KIDDING ME?','Soooooooooooo bad','I hate this', 'Garbage!','POOR SERVICE!!!!!','The ui is ugly','this is bad','???']
 
 search_keyword = ['hoodie','hoodie', 'apple','apple','apple','juice','juice', 'Juice', 'owasp','orange', 'pizza', 'happiness']
 
