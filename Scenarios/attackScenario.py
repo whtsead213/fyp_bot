@@ -1,4 +1,5 @@
 # from selenium import webdriver
+import os
 import time
 import json
 import random
@@ -111,26 +112,26 @@ class XXEAttack(Attack):
     
     def scenario_xxe_retrieve_passwd_attack(self):
         if self.verbose:
-            print ("ENTER XXS RETRIEVE PASSWORD ATTACK")
+            print ("ENTER XXE RETRIEVE PASSWORD ATTACK")
 
         # 1. Check if is log in
-        if not self.is_logged_in:
-            loginType = random.randint(0, 2)
+        if self.is_logged_in == False:
+            loginType = random.randint(0, 1)
             if loginType == 0:
                 self.scenario_login()
                 self.is_logged_in = True
             elif loginType == 1:
-                self.scenario_register()
+                self.scenario_register(login_after_register=True)
                 self.is_logged_in = True
-
-        random_sleep()
+        
+        random_sleep(10, 20)
         # 2. move to the complaint page
         self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[10]').click()
         random_sleep()
 
         # 3. type command and upload file
         self.driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
-        self.driver.find_element_by_xpath('//*[@id="file"]').send_keys("Scenarios/xxe_tier1.xml")
+        self.driver.find_element_by_xpath('//*[@id="file"]').send_keys(os.getcwd()+"/Scenarios/xxe_tier1.xml")
         self.driver.find_element_by_xpath('//*[@id="submitButton"]').click()
 
         return
