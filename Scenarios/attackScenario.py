@@ -144,7 +144,7 @@ class FileUploadAttack(Attack):
         TODO: NEED TO INPUT YOUR OWN FILE NAME
         ======================================
         """
-        files = {"file": open("HW1.pdf","rb")}
+        files = {"file": open("Scenarios/HW1.pdf","rb")}
 
         r = requests.post(url=url, files=files)
 
@@ -164,7 +164,7 @@ class FileUploadAttack(Attack):
         TODO: NEED TO INPUT YOUR OWN FILE NAME
         ======================================
         """
-        files = {"file": open("h.xml","rb")}
+        files = {"file": open("Scenarios/h.xml","rb")}
 
         r = requests.post(url=url, files=files)
 
