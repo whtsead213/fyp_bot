@@ -553,6 +553,15 @@ class XSSAttack(Attack):
         if self.verbose:
             print ("ENTER XSS CONTACT ATTACK")
 
+        # Check if is log in
+        if not self.is_logged_in:
+            loginType = random.randint(0, 1)
+            if loginType == 0:
+                self.scenario_login()
+            elif loginType == 1:
+                self.scenario_register(login_after_register=True)
+            self.is_logged_in = True
+
         attack = ""
         random_sleep(1, 3)
         attackCategory = random.randint(0, 8)
