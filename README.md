@@ -9,31 +9,25 @@ How to use:
 
 **random mode**
 
-```python bot.py random 5```
+```python bot.py -r1 5```
 
+-r1 to -r6 are using different port to create normal logs
 randomly pick a scenario 5 times        
     
 or
 
 **custom mode**
     
-```python bot.py custom 1 2 3 2 1 0```
+```python bot.py -c1 1 2 3 2 1 0```
+same here, -c1 to -c6 are using different port to create normal logs
 
-or
 
-**random attack mode**
 
-```python bot.py random-attack 5```
-
-randomly pick an attack scenario 5 times        
-
-or
-
-**custom attack mode**
+**attack mode**
     
-```python bot.py custom-attack 1 2 3 2 1 0```
+```python bot.py -a xss 0```
+-a flag mean attack
+xss specifys the attack type, and 1 means the first attack in the attack list of the specific attack
 
-each argument is the index of the attack scenario
-       
        
 You can also change the sleep duration and verbose in **config.py**
