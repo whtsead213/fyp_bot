@@ -148,7 +148,7 @@ class FileUploadAttack(Attack):
         TODO: NEED TO INPUT YOUR OWN FILE NAME
         ======================================
         """
-        files = {"file": open("temp.html","rb")}
+        files = {"file": open("h.xml","rb")}
 
         r = requests.post(url=url, files=files)
 
