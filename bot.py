@@ -17,7 +17,7 @@ from Scenarios.attackScenario import DosAttack, ErrorAttack, TamperingAttack, XX
 
 server = None
 
-def create_driver(url, port):
+def create_driver(port):
     global server
     server = SSHTunnelForwarder(
         ('vml1wk054.cse.ust.hk', 22),
@@ -34,9 +34,6 @@ def create_driver(url, port):
     driver.get('localhost:' + str(port))
 
     try:
-        if port == 43333:
-            sleep(5)
-            driver.switch_to_alert().accept()   # this is temparary implemented since an xss item is added
         #dismiss the cookie message since it make the close button untouchable
         driver.find_element_by_xpath('/html/body/div[1]/div/a').click()
         print('dismissed cookie')
@@ -63,37 +60,78 @@ if __name__ == '__main__':
     print('Bot mode: ' + mode)
     starting_time = str(datetime.now())
     
-    if mode == 'random' or mode == 'r':
-        driver = create_driver(url="url", port=config.config['normal_port'])
-        firebaseDAO = FirebaseDAO(port=config.config['normal_port'], actionType="normal")
-        action = Action(driver=driver, actionType="normal", firebaseDAO=firebaseDAO)
-        for i in range(int(sys.argv[2])):
-            try:
-                scenario = random.choice(action.scenario_list)
-                scenario()
-                firebaseDAO.normal_record(str(scenario), str(datetime.now()), config.config['user_Albert']) 
-            except NoSuchElementException:
-                continue
-    if mode == 'custom' or mode == 'c':
-        driver = create_driver(url="url", port=config.config['normal_port'])
-        firebaseDAO = FirebaseDAO(port=config.config['normal_port'], actionType="normal")
-        action = Action(driver=driver, actionType="normal", firebaseDAO=firebaseDAO)
+    # 1.ranndom noraml
+    if mode[:2] == '-r':
+        driver, firebaseDAO = None, None
+        if mode == '-r1':
+            driver = create_driver(port=config.config['normal_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal_port'], actionType="normal")
+        elif mode == '-r2':
+            driver = create_driver(port=config.config['normal2_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal2_port'], actionType="normal")
+        elif mode == '-r3':
+            driver = create_driver(port=config.config['normal3_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal3_port'], actionType="normal")
+        elif mode == '-r4':
+            driver = create_driver(port=config.config['normal4_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal4_port'], actionType="normal")
+        elif mode == '-r5':
+            driver = create_driver(port=config.config['normal5_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal5_port'], actionType="normal")
+        elif mode == '-r6':
+            driver = create_driver(port=config.config['normal6_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal6_port'], actionType="normal")
         
-        for i in range(2, len(sys.argv)):
-            index = int(sys.argv[i])
-            if (index >= len(action.scenario_list) or index < 0):
-                print('scenario value out of bound, skipped')
-                continue  
-            else:
+        if driver != None and firebaseDAO != None:
+            action = Action(driver=driver, actionType="normal", firebaseDAO=firebaseDAO)
+            for i in range(int(sys.argv[2])):
                 try:
-                    action.scenario_list[index]()
-                    firebaseDAO.normal_record(normal_scenario=str(action.scenario_list[index]), access_time=str(datetime.now()), creater=config.config['user_Albert'])
+                    scenario = random.choice(action.scenario_list)
+                    scenario()
+                    firebaseDAO.normal_record(str(scenario), str(datetime.now()), config.config['user_Albert']) 
                 except NoSuchElementException:
                     continue
+    
+    # 2. custom normal
+    if mode[:2] == '-c':
+        driver, firebaseDAO = None, None
+        if mode == '-c1':
+            driver = create_driver(port=config.config['normal_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal_port'], actionType="normal")
+        elif mode == '-c2':
+            driver = create_driver(port=config.config['normal2_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal2_port'], actionType="normal")
+        elif mode == '-c3':
+            driver = create_driver(port=config.config['normal3_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal3_port'], actionType="normal")
+        elif mode == '-c4':
+            driver = create_driver(port=config.config['normal4_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal4_port'], actionType="normal")
+        elif mode == '-c5':
+            driver = create_driver(port=config.config['normal5_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal5_port'], actionType="normal")
+        elif mode == '-c6':
+            driver = create_driver(port=config.config['normal6_port'])
+            firebaseDAO = FirebaseDAO(port=config.config['normal6_port'], actionType="normal")
 
+        if driver != None and firebaseDAO != None:
+            action = Action(driver=driver, actionType="normal", firebaseDAO=firebaseDAO)
+            for i in range(2, len(sys.argv)):
+                index = int(sys.argv[i])
+                if (index >= len(action.scenario_list) or index < 0):
+                    print('scenario value out of bound, skipped')
+                    continue  
+                else:
+                    try:
+                        action.scenario_list[index]()
+                        firebaseDAO.normal_record(normal_scenario=str(action.scenario_list[index]), access_time=str(datetime.now()), creater=config.config['user_Albert'])
+                    except NoSuchElementException:
+                        continue
+
+    # 3. attacks
     if mode == '-a' or mode == '--attack':
         attack_type = sys.argv[2]
-        driver = create_driver(url="url", port=config.config[attack_type + "_port"])
+        driver = create_driver(port=config.config[attack_type + "_port"])
         
         """attack_scenario_dict = {
             "dos" : DosAttack(driver=driver),
@@ -161,7 +199,7 @@ if __name__ == '__main__':
             print ("the given attack type is not valid")
 
         
-    sleep(5)
+    sleep(1)
     driver.close()
     server.stop()
     print('Starting time: ' + starting_time)

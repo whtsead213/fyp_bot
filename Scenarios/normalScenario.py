@@ -166,7 +166,7 @@ class Action():
         return
 
 
-    def scenario_contact(self):
+    def scenario_contact(self, contant=None):
         '''
         This is a function that you can access the juiceshop and go to the comment page automatically
         You can follow this function as template to create more scenario
@@ -187,7 +187,10 @@ class Action():
         # 2. leave comment, sample comments are in config.py
         #give good / bad comment according to star
         star = random.randint(1,5)
-        self.driver.find_element_by_xpath('//*[@id="feedbackComment"]').send_keys(random_comment(star))
+        if contant:
+            self.driver.find_element_by_xpath('//*[@id="feedbackComment"]').send_keys(contant)
+        else:
+            self.driver.find_element_by_xpath('//*[@id="feedbackComment"]').send_keys(random_comment(star))
         random_sleep()
 
         # 3. handle star
