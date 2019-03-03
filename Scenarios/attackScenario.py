@@ -131,7 +131,7 @@ class XXEAttack(Attack):
 
         # 3. type command and upload file
         self.driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
-        self.driver.find_element_by_xpath('//*[@id="file"]').send_keys(os.getcwd()+"/Scenarios/xxe_tier1.xml")
+        self.driver.find_element_by_xpath('//*[@id="file"]').send_keys(os.getcwd()+"/Scenarios/xxe_file/xxe_" + str(random.randint(1, 50)) + ".xml")
         random_sleep()
         self.driver.find_element_by_xpath('//*[@id="submitButton"]').click()
 
