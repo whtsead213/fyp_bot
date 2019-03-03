@@ -12,8 +12,8 @@ from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 
-from config import config
 from firebaseDAO import FirebaseDAO
+from config import config, domain_name, domain_type, domain_location
 from Scenarios.normalScenario import random_sleep, random_comment, Action
 
 
@@ -258,7 +258,6 @@ class SQLAttack(Attack):
         super(SQLAttack, self).__init__(driver=driver, attackType=attackType, firebaseDAO=firebaseDAO)
 
         self.attack_scenario_list = [
-            self.scenario_admin_login_without_passwd_attack,
             self.scenario_user_login_without_passwd_attack,
             self.scenario_retrieve_user_credentials_attack,
             self.scenario_sql_login_attack
@@ -305,11 +304,40 @@ class SQLAttack(Attack):
         randomPassword = ''.join(random.choices(string.ascii_letters + string.digits, k=attackPasswordLength))
 
         # 2-2. attack in logging in 
-        email = ["bender@juice-sh.op'--", "jim@juice-sh.op'--"]
+        # 2-2-1. fake login in, create email that don't really exist 
+        for i in range(random.randint(0, 20)):
+            emailCharLength = random.randint(8, 23)
+            passwdCharLength = random.randint(8, 15)
+            email = ''.join(random.choices(string.ascii_letters + string.digits, k=emailCharLength)) + '@' + \
+                domain_name[random.randint(0, len(domain_name) - 1)] + \
+                domain_type[random.randint(0, len(domain_type) - 1)] + \
+                domain_location[random.randint(0, len(domain_location) - 1)] + \
+                "'--"
+
+            self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
+            random_sleep(1, 2)
+            self.driver.find_element_by_xpath('//*[@id="userEmail"]').clear()
+            self.driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
+            self.driver.find_element_by_xpath('//*[@id="userPassword"]').clear()
+            self.driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
+            self.driver.find_element_by_xpath('//*[@id="loginButton"]').click()
+
+        # 2-2-2. true login in
+        pickFromDatabase = random.randint(0, 1)
+        eamil = ""
+        if (pickFromDatabase == 0):
+            emailAccounts = ["admin@juice-sh.op'--", "bender@juice-sh.op'--", "jim@juice-sh.op'--"]
+            eamil = emailAccounts[random.randint(0, len(emailAccounts)-1)]
+        
+        elif (pickFromDatabase == 1):
+            uid = random.randint(0, len(self.accounts) - 1)
+            email = self.accounts[uid] + '@' + self.firebaseDAO.get_account(self.accounts[uid])['host'] + "'--"
 
         self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[1]').click()
         random_sleep(1, 2)
-        self.driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email[random.randint(0, 1)])
+        self.driver.find_element_by_xpath('//*[@id="userEmail"]').clear()
+        self.driver.find_element_by_xpath('//*[@id="userEmail"]').send_keys(email)
+        self.driver.find_element_by_xpath('//*[@id="userPassword"]').clear()
         self.driver.find_element_by_xpath('//*[@id="userPassword"]').send_keys(randomPassword)
         self.driver.find_element_by_xpath('//*[@id="loginButton"]').click()
         self.is_logged_in = True
