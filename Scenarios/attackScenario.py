@@ -13,8 +13,8 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 
 from firebaseDAO import FirebaseDAO
-from config import config, domain_name, domain_type, domain_location
 from Scenarios.normalScenario import random_sleep, random_comment, Action
+from config import config, domain_name, domain_type, domain_location, person_name, item_name
 
 
 class Attack(Action):
