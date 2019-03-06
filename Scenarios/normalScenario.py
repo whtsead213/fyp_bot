@@ -128,13 +128,13 @@ class Action():
                     pass
             
             if(random.random() < 0.3):
-                self.scenario_checkout(self.driver)
+                self.scenario_checkout()
 
             return
 
         #driver.get(config.config['url'])
         if(random.random() < 0.3):
-            self.scenario_login(self.driver)
+            self.scenario_login()
         
         max_clicks = config['home_product_clicks_max']
         min_clicks = config['home_product_clicks_min']
@@ -153,7 +153,7 @@ class Action():
                 
                 product = "/html/body/main/div/section/table/tbody/tr[" + str(product_id) + "]/td[5]/div/a[1]"
                 self.driver.find_element_by_xpath(product).click()
-                self.comment_product(self.driver)
+                comment_product(self.driver)
                 
                 if self.is_logged_in:
                     random_prob = random.random()
