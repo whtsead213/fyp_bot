@@ -128,13 +128,13 @@ class Action():
                     pass
             
             if(random.random() < 0.3):
-                self.scenario_checkout(self.driver)
+                self.scenario_checkout()
 
             return
 
         #driver.get(config.config['url'])
         if(random.random() < 0.3):
-            self.scenario_login(self.driver)
+            self.scenario_login()
         
         max_clicks = config['home_product_clicks_max']
         min_clicks = config['home_product_clicks_min']
@@ -153,12 +153,12 @@ class Action():
                 
                 product = "/html/body/main/div/section/table/tbody/tr[" + str(product_id) + "]/td[5]/div/a[1]"
                 self.driver.find_element_by_xpath(product).click()
-                self.comment_product(self.driver)
+                comment_product(self.driver)
                 
                 if self.is_logged_in:
                     random_prob = random.random()
                     if random_prob <= config['add_product_to_cart_prob']:
-                        add_product_to_cart(self.driver, product_id=product_id)
+                        add_product_to_cart(product_id=product_id)
             
             except NoSuchElementException:
                 pass
@@ -282,7 +282,7 @@ class Action():
         if(random.random() < 0.3):
             self.scenario_login()
 
-        r = random.randint(0, len(config.search_keyword) - 1)
+        r = random.randint(0, len(search_keyword) - 1)
         self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').clear()
         self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(search_keyword[r])
         random_sleep()
@@ -318,7 +318,7 @@ class Action():
                 self.firebaseDAO.set_order(self.current_email, prev_order)
         
             
-            self.driver.get(config['url'])
+            self.driver.get('localhost:' + str(self.firebaseDAO.port))
         
         return
 
@@ -350,7 +350,11 @@ class Action():
     def scenario_complain(self):
         if(random.random() < 0.2):
             return
+        
+        if not self.is_logged_in:
+            self.scenario_login()
 
+        self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[10]').click()
         random_sleep()
         self.driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
         self.driver.find_element_by_xpath('//*[@id="submitButton"]').click()
