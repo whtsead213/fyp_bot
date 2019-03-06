@@ -282,7 +282,7 @@ class Action():
         if(random.random() < 0.3):
             self.scenario_login()
 
-        r = random.randint(0, len(config.search_keyword) - 1)
+        r = random.randint(0, len(search_keyword) - 1)
         self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').clear()
         self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[4]/form/div/input').send_keys(search_keyword[r])
         random_sleep()
@@ -318,7 +318,7 @@ class Action():
                 self.firebaseDAO.set_order(self.current_email, prev_order)
         
             
-            self.driver.get(config['url'])
+            self.driver.get('localhost:' + str(self.firebaseDAO.port))
         
         return
 
