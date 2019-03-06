@@ -350,7 +350,11 @@ class Action():
     def scenario_complain(self):
         if(random.random() < 0.2):
             return
+        
+        if not self.is_logged_in:
+            self.scenario_login()
 
+        self.driver.find_element_by_xpath('/html/body/nav/div/ul/li[10]').click()
         random_sleep()
         self.driver.find_element_by_xpath('//*[@id="complaintMessage"]').send_keys(random_comment(2))
         self.driver.find_element_by_xpath('//*[@id="submitButton"]').click()
