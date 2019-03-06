@@ -158,7 +158,7 @@ class Action():
                 if self.is_logged_in:
                     random_prob = random.random()
                     if random_prob <= config['add_product_to_cart_prob']:
-                        add_product_to_cart(self.driver, product_id=product_id)
+                        add_product_to_cart(product_id=product_id)
             
             except NoSuchElementException:
                 pass
