@@ -249,8 +249,17 @@ class Action():
                 print(email + 'is logged in')
             
             random_sleep(2, 3)
-            
-            return
+        
+        if self.verbose:
+            print (self.driver.current_url)
+
+        if self.driver.current_url != "http://localhost:"+ str(self.firebaseDAO.port) +"/#/search":
+            self.driver.find_element_by_xpath('//*[@id="userEmail"]').clear()
+            self.driver.find_element_by_xpath('//*[@id="userPassword"]').clear()
+            self.is_logged_in = False
+            self.scenario_login()
+
+        return
 
 
     def scenario_logout(self, p=0.8):
